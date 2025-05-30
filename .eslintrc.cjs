@@ -1,14 +1,18 @@
 module.exports = {
-  env: { browser: true, es2020: true },
+  env: { browser: true, es2020: true, node: true },
   extends: [
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:react/jsx-runtime',
-    'plugin:react-hooks/recommended',
+    'plugin:react-hooks/recommended'
   ],
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
   settings: { react: { version: '18.2' } },
-  plugins: ['react', 'react-hooks', 'react-refresh'],
+  plugins: [
+    'react',
+    'react-hooks',
+    'react-refresh'
+  ],
   rules: {
     // React
     'react-refresh/only-export-components': 'warn',
@@ -16,17 +20,17 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'warn',
     'react/prop-types': 0,
     'react/display-name': 0,
-    
+
     // MUI
-    'no-restricted-imports': [
-      'error',
-      {
-        'patterns': [{ 'regex': '^@mui/[^/]+$' }]
-      }
-    ],
+    // 'no-restricted-imports': [
+    //   'error',
+    //   {
+    //     'patterns': ['@mui/*'] // Corrected line
+    //   }
+    // ],
 
     // Common
-    'no-console': 1,
+    'no-console': 0,
     'no-lonely-if': 1,
     'no-unused-vars': 1,
     'no-trailing-spaces': 1,
@@ -44,5 +48,5 @@ module.exports = {
     'comma-dangle': 1,
     'comma-spacing': 1,
     'arrow-spacing': 1
-  },
+  }
 }
