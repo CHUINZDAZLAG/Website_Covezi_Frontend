@@ -6,6 +6,7 @@ import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortabl
 import { useState } from 'react'
 import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
+import { toast } from 'react-toastify'
 
 function ListColumns({ columns }) {
   // Handle add new Column
@@ -16,6 +17,7 @@ function ListColumns({ columns }) {
 
   const addNewColumn = () => {
     if (!newColumnTitle) {
+      toast.error('Please enter column title!')
       return
     }
     // Call API

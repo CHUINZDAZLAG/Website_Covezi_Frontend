@@ -24,6 +24,7 @@ import { Opacity } from '@mui/icons-material'
 import { useState } from 'react'
 import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
+import { toast } from 'react-toastify'
 
 function Column({ column }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -59,6 +60,7 @@ function Column({ column }) {
 
   const addNewCard = () => {
     if (!newCardTitle) {
+      toast.error('Please enter card title!')
       return
     }
     // Call API
