@@ -17,16 +17,14 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import DragHandleIcon from '@mui/icons-material/DragHandle'
 import { Tooltip } from '@mui/material'
 import ListCards from './ListCards/ListCards'
-import { mapOrder } from '~/utils/sorts'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Opacity } from '@mui/icons-material'
 import { useState } from 'react'
 import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
 import { toast } from 'react-toastify'
 
-function Column({ column }) {
+function Column({ column, createNewCard }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column._id,
     data: { ...column }
@@ -50,7 +48,8 @@ function Column({ column }) {
     setAnchorEl(null)
   }
 
-  const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
+  // Cards has been arranged in father component
+  const orderedCards = column.cards
 
   // Handle add new Card
   const [openNewCardForm, setOpenNewCardForm] = useState(false)
@@ -63,7 +62,16 @@ function Column({ column }) {
       toast.error('Please enter card title!')
       return
     }
-    // Call API
+
+    // Create data to call API
+    const newCardData = {
+      title: newCardTitle,
+      columnId: column._id
+    }
+
+    // Can use Redux, call props function form board _id
+    createNewCard(newCardData)
+
     toggleOpenNewCardForm()
     setNewCardTitle('')
   }
@@ -179,7 +187,7 @@ function Column({ column }) {
               gap: 1
             }}>
               <TextField
-                label="Enter column title..."
+                label="Enter card title..."
                 type="text"
                 size='small'
                 variant='outlined'
@@ -219,7 +227,7 @@ function Column({ column }) {
                   fontSize='small'
                   sx={{
                     color: (theme) => theme.palette.warning.light,
-                    cursor: 'pointer',
+                    cursor: 'pointer'
                   }}
                   onClick={() => {
                     toggleOpenNewCardForm()
