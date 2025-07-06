@@ -1,10 +1,9 @@
 import Box from '@mui/material/Box'
 import ListColumns from './ListColumns/ListColumns'
-import { mapOrder } from '~/utils/sorts'
 import {
   DndContext,
-  MouseSensor,
-  TouchSensor,
+  // MouseSensor,
+  // TouchSensor,
   useSensor,
   useSensors,
   DragOverlay,
@@ -14,6 +13,7 @@ import {
   pointerWithin,
   getFirstCollision
 } from '@dnd-kit/core'
+import { MouseSensor, TouchSensor } from '~/customLibraries/DndKitSensors'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { arrayMove } from '@dnd-kit/sortable'
 import Column from './ListColumns/Column/Column'
@@ -26,7 +26,15 @@ const ACTIVE_DRAG_ITEM_TYPE = {
   CARD: 'ACTIVE_DRAG_ITEM_TYPE_CARD'
 }
 
-function BoardContent({ board }) {
+function BoardContent({
+  board,
+  createNewColumn,
+  createNewCard,
+  moveColumns,
+  moveCardInTheSameColumn,
+  moveCardToDifferentColumn,
+  deleteColumnDetail
+}) {
   // Have bug for mobile if use PointerSensor and touchAction
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } })
 
@@ -50,7 +58,8 @@ function BoardContent({ board }) {
   const lastOverId = useRef(null)
 
   useEffect(() => {
-    setOrderedColumns(mapOrder(board?.columns, board?.columnOrderIds, '_id'))
+    // Columns has been arranged in father component
+    setOrderedColumns(board.columns)
   }, [board])
 
   const findColumnByCardId = (cardId) => {
@@ -64,7 +73,8 @@ function BoardContent({ board }) {
     active,
     over,
     activeDraggingCardId,
-    activeDraggingCardData
+    activeDraggingCardData,
+    triggerFrom
   ) => {
     setOrderedColumns(prevColumns => {
       // Find index of overCard in final column that card has been dropped
@@ -114,6 +124,12 @@ function BoardContent({ board }) {
         // Update cardOrderIds
         nextOverColumn.cardOrderIds = nextOverColumn.cards.map(card => card._id)
       }
+
+      // If function was called from handlDragEnd so we call API
+      if (triggerFrom === 'handleDragEnd') {
+        moveCardToDifferentColumn(activeDraggingCardId, oldColumnWhenDraggingCard._id, nextOverColumn._id, nextColumns)
+      }
+
       return nextColumns
     })
   }
@@ -139,7 +155,7 @@ function BoardContent({ board }) {
     // Check drag outside
     if (!active || !over) return
 
-    const { id: activeDraggingCardId, data: { current: activeDraggingCardData }} = active
+    const { id: activeDraggingCardId, data: { current: activeDraggingCardData } } = active
     const { id: overCardId } = over
 
     // Find 2 columns by CardId
@@ -158,7 +174,8 @@ function BoardContent({ board }) {
         active,
         over,
         activeDraggingCardId,
-        activeDraggingCardData
+        activeDraggingCardData,
+        'handleDragOver'
       )
     }
   }
@@ -172,7 +189,7 @@ function BoardContent({ board }) {
 
     // Handle drag and drop Cards
     if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD) {
-      const { id: activeDraggingCardId, data: { current: activeDraggingCardData }} = active
+      const { id: activeDraggingCardId, data: { current: activeDraggingCardData } } = active
       const { id: overCardId } = over
 
       // Find 2 columns by CardId
@@ -192,10 +209,10 @@ function BoardContent({ board }) {
           active,
           over,
           activeDraggingCardId,
-          activeDraggingCardData
+          activeDraggingCardData,
+          'handleDragEnd'
         )
-      } else {
-        // Handle card drag and drop between same columns
+      } else { // Handle card drag and drop between same columns
         // Get index of old position from oldColumnWhenDraggingCard
         const oldCardIndex = oldColumnWhenDraggingCard?.cards?.findIndex(c => c._id === activeDragItemId)
         // Get index of new position from over
@@ -203,6 +220,7 @@ function BoardContent({ board }) {
 
         // Use arrayMove because drag card inside a column is the same with drag column inside a board content
         const dndOrderedCards = arrayMove(oldColumnWhenDraggingCard?.cards, oldCardIndex, newCardIndex)
+        const dndOrderedCardIds = dndOrderedCards.map(card => card._id)
 
         setOrderedColumns(prevColumns => {
           // Clone orderedColumns to handle data then update new orderedColumns
@@ -213,11 +231,13 @@ function BoardContent({ board }) {
 
           // Update card and cardOrderIds in targetColumn
           targetColumn.cards = dndOrderedCards
-          targetColumn.cardOrderIds = dndOrderedCards.map(card => card._id)
+          targetColumn.cardOrderIds = dndOrderedCardIds
 
           // Return new state of correct position
           return nextColumns
         })
+
+        moveCardInTheSameColumn(dndOrderedCards, dndOrderedCardIds, oldColumnWhenDraggingCard._id)
       }
     }
 
@@ -231,10 +251,12 @@ function BoardContent({ board }) {
         const newColumnIndex = orderedColumns.findIndex(c => c._id === over.id)
 
         const dndOrderedColumns = arrayMove(orderedColumns, oldColumnIndex, newColumnIndex)
-        // const dndOrderedColumnsIds = dndOrderedColumns.map(c => c._id)
 
-        // Render new state of column
+        // Render new state of column which dont wait to call API to avoid flickering
         setOrderedColumns(dndOrderedColumns)
+
+        // Can use REDUX
+        moveColumns(dndOrderedColumns)
       }
     }
 
@@ -308,7 +330,12 @@ function BoardContent({ board }) {
         height: (theme) => theme.trello.boardContentHeight,
         p: '10px 0'
       }}>
-        <ListColumns columns={orderedColumns}/>
+        <ListColumns
+          columns={orderedColumns}
+          createNewColumn={createNewColumn}
+          createNewCard={createNewCard}
+          deleteColumnDetail={deleteColumnDetail}
+        />
         <DragOverlay dropAnimation={dropAnimation}>
           {!activeDragItemType && null}
           {(activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) && <Column column={activeDragItemData}/>}
