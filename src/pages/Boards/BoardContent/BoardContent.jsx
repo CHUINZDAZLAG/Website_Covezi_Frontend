@@ -32,7 +32,8 @@ function BoardContent({
   createNewCard,
   moveColumns,
   moveCardInTheSameColumn,
-  moveCardToDifferentColumn
+  moveCardToDifferentColumn,
+  deleteColumnDetail
 }) {
   // Have bug for mobile if use PointerSensor and touchAction
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } })
@@ -333,6 +334,7 @@ function BoardContent({
           columns={orderedColumns}
           createNewColumn={createNewColumn}
           createNewCard={createNewCard}
+          deleteColumnDetail={deleteColumnDetail}
         />
         <DragOverlay dropAnimation={dropAnimation}>
           {!activeDragItemType && null}
