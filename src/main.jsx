@@ -6,22 +6,28 @@ import { Experimental_CssVarsProvider as CssVarsProvider } from '@mui/material/s
 import theme from '~/theme.js'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { ConfirmProvider } from 'material-ui-confirm' // MUI dialog
+// MUI dialog
+import { ConfirmProvider } from 'material-ui-confirm'
+// Config Redux Store
 import store from '~/redux/store'
 import { Provider } from 'react-redux'
+// Config react-router-dom with BrowserRouter
+import { BrowserRouter } from 'react-router-dom'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <Provider store={store}>
-    <CssVarsProvider theme={theme}>
-      <ConfirmProvider defaultOptions={{
-        dialogProps: { maxWidth: 'xs' },
-        confirmationButtonProps: { color: 'secondary', variant: 'outlined' },
-        cancellationButtonProps: { color: 'inherit' }
-      }}>
-        <CssBaseline />
-        <App />
-        <ToastContainer position="bottom-right" theme="colored"/>
-      </ConfirmProvider>
-    </CssVarsProvider>
-  </Provider>
+  <BrowserRouter basename='/'>
+    <Provider store={store}>
+      <CssVarsProvider theme={theme}>
+        <ConfirmProvider defaultOptions={{
+          dialogProps: { maxWidth: 'xs' },
+          confirmationButtonProps: { color: 'secondary', variant: 'outlined' },
+          cancellationButtonProps: { color: 'inherit' }
+        }}>
+          <CssBaseline />
+          <App />
+          <ToastContainer position="bottom-right" theme="colored"/>
+        </ConfirmProvider>
+      </CssVarsProvider>
+    </Provider>
+  </BrowserRouter>
 )
