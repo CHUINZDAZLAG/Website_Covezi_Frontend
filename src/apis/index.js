@@ -2,12 +2,13 @@ import axios from 'axios'
 import { API_ROOT } from '~/utils/constants'
 
 // Board API
-export const fetchBoardDetailsAPI = async (boardId) => {
-  // Not use try catch because we will use Interceptors of axios to collective error handling
-  const response = await axios.get(`${API_ROOT}/v1/boards/${boardId}`)
-  // Axios return json data in response.data
-  return response.data
-}
+// Moved to redux
+// export const fetchBoardDetailsAPI = async (boardId) => {
+//   // Not use try catch because we will use Interceptors of axios to collective error handling
+//   const response = await axios.get(`${API_ROOT}/v1/boards/${boardId}`)
+//   // Axios return json data in response.data
+//   return response.data
+// }
 
 export const updateBoardDetailsAPI = async (boardId, updateData) => {
   const response = await axios.put(`${API_ROOT}/v1/boards/${boardId}`, updateData)

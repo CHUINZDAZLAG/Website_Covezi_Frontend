@@ -27,7 +27,7 @@ export const activeBoardSlice = createSlice({
   // Reducers: handle synchronous data
   reducers: {
     // always use () => {}, this is rules of redux
-    updteCurrentActiveBoard: (state, action) => {
+    updateCurrentActiveBoard: (state, action) => {
       // action.payload is a standard naming for input reducer, we assign it for a meaning variable
       const board = action.payload
 
@@ -67,7 +67,7 @@ export const activeBoardSlice = createSlice({
 // Action creators are generated for each case reducer function
 // Action là nơi dành cho các components bên dưới gọi bằng dispathch() tới nó để cập nhật lại dữ liệu thông qua reducer (chạy đồng bộ)
 // Thuộc tính actions sẽ được redux tạo tự động theo tên của reducer
-export const { updteCurrentActiveBoard } = activeBoardSlice.actions
+export const { updateCurrentActiveBoard } = activeBoardSlice.actions
 
 // Selectors: child components call by hook useSelector() to get data in redux store
 export const selectCurrentActiveBoard = (state) => {
