@@ -4,7 +4,7 @@ import { interceptorLoadingElements } from '~/utils/formatters'
 
 // Khởi tạo một đối tượng Axios (authorizedAxiosInstance) mục đích để custom và cấu hình chung cho dự án.
 let authorizedAxiosInstance = axios.create()
-// Thời gian chờ tối đa của 1 reqquest: đề 10 phút
+// Thời gian chờ tối đa của 1 request: đề 10 phút
 authorizedAxiosInstance.defaults.timeout = 1000 * 60 * 10
 // withCredentials: Sẽ cho phép axios tự động gửi cookie trong mỗi request lên BE (phục vụ việc chúng ta sẽ
 // lưu JWT tokens (refresh & access) vào trong httpOnly Cookie của trình duyệt)
