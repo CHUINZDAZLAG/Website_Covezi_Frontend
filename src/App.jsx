@@ -6,6 +6,7 @@ import AccountVerification from '~/pages/Auth/AccountVerification'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import Settings from '~/pages/Settings/Settings'
+import Boards from '~/pages/Boards'
 
 /**
  * Giải pháp Clean Code trong việc xác định các route nào cần đăng nhập tài khoản xong thì mới cho truy cập
@@ -39,6 +40,7 @@ function App() {
         {/* <Outlet /> của react-router-dom sẽ chạy vào các child route trong này */}
         {/* Board details */}
         <Route path='/boards/:boardId' element={<Board />} />
+        <Route path='/boards/' element={<Boards />} />
 
         {/* User Setting */}
         <Route path='/settings/account' element={<Settings />} />
