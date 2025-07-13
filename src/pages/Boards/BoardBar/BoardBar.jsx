@@ -11,6 +11,7 @@ import AvatarGroup from '@mui/material/AvatarGroup'
 import { Tooltip } from '@mui/material'
 import Button from '@mui/material/Button'
 import { capitalizeFirstLetter } from '~/utils/formatters'
+import BoardUserGroup from './BoardUserGroup'
 
 const MENU_STYLES = {
   color: 'white',
@@ -84,25 +85,8 @@ function BoardBar({ board }) {
           Invite
         </Button>
 
-        <AvatarGroup
-          max={4}
-          sx={{
-            gap: '10px',
-            '& .MuiAvatar-root': {
-              width: 34,
-              height: 34,
-              fontSize: 16,
-              border: 'none',
-              color: 'white',
-              cursor: 'pointer',
-              '&:first-of-type': { bgcolor: '#a4b0be' }
-            }
-          }}
-        >
-          <Tooltip title="Trander">
-            <Avatar alt="Trander" src="/static/images/avatar/1.jpg" />
-          </Tooltip>
-        </AvatarGroup>
+        {/* Handle show up list members of board */}
+        <BoardUserGroup />
       </Box>
     </Box>
   )
