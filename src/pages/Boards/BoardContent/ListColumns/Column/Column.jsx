@@ -1,5 +1,4 @@
 import React from 'react'
-import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Menu from '@mui/material/Menu'
@@ -32,8 +31,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { cloneDeep } from 'lodash'
 import {
   createNewCardAPI,
-  deleteColumnDetailsAPI
+  deleteColumnDetailsAPI,
+  updateColumnDetailsAPI
 } from '~/apis'
+import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 
 function Column({ column }) {
   const dispatch = useDispatch()
@@ -140,6 +141,18 @@ function Column({ column }) {
       })
     }).catch(() => {})
   }
+
+  const onUpdateColumnTitle = (newTitle) => {
+    // Call API update column and update data board in redux
+    updateColumnDetailsAPI(column._id, { title: newTitle }).then(() => {
+      const newBoard = cloneDeep(board)
+      const columnToUpdate = newBoard.columns.find(col => col._id === column._id)
+      if (columnToUpdate) columnToUpdate.title = newTitle
+
+      dispatch(updateCurrentActiveBoard(newBoard))
+    })
+  }
+
   return (
     <div
       ref={setNodeRef}
@@ -165,13 +178,11 @@ function Column({ column }) {
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <Typography variant='h6' sx={{
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            cursor: 'pointer'
-          }}>
-            {column?.title}
-          </Typography>
+          <ToggleFocusInput
+            value={column?.title}
+            onChangedValue={onUpdateColumnTitle}
+            data-no-dnd='true'
+          />
           <Box>
             <Tooltip title='More options'>
               <ExpandMoreIcon
