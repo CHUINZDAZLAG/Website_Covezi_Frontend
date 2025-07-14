@@ -144,7 +144,7 @@ function Column({ column }) {
 
   const onUpdateColumnTitle = (newTitle) => {
     // Call API update column and update data board in redux
-    updateColumnDetailsAPI(column._id, { title: newTitle }).then(() => {
+    updateColumnDetailsAPI(column._id, { title: newTitle }).then((res) => {
       const newBoard = cloneDeep(board)
       const columnToUpdate = newBoard.columns.find(col => col._id === column._id)
       if (columnToUpdate) columnToUpdate.title = newTitle

@@ -67,7 +67,7 @@ function AccountTab() {
     //   console.log('reqData Value: ', value)
     // }
 
-    // Gọi API...
+    // Gọi API
     toast.promise(
       dispatch(updateUserAPI(reqData)),
       { pending: 'Updating...' }
