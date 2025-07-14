@@ -2,7 +2,6 @@ import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 import { toast } from 'react-toastify'
 
-// Board API
 // Moved to redux
 // export const fetchBoardDetailsAPI = async (boardId) => {
 //   // Not use try catch because we will use Interceptors of axios to collective error handling
@@ -11,6 +10,7 @@ import { toast } from 'react-toastify'
 //   return response.data
 // }
 
+// Board API
 export const updateBoardDetailsAPI = async (boardId, updateData) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/boards/${boardId}`, updateData)
   return response.data
@@ -75,6 +75,12 @@ export const refreshTokenAPI = async () => {
 
 export const fetchBoardsAPI = async (searchPath) => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/boards${searchPath}`)
+  return response.data
+}
+
+export const inviteUserToBoardAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/invitations/board`, data)
+  toast.success('User invited to board successfully!')
   return response.data
 }
 
