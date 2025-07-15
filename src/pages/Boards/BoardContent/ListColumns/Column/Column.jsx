@@ -1,5 +1,4 @@
 import React from 'react'
-import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Menu from '@mui/material/Menu'
@@ -24,8 +23,23 @@ import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
 import { toast } from 'react-toastify'
 import { useConfirm } from 'material-ui-confirm'
+import {
+  updateCurrentActiveBoard,
+  selectCurrentActiveBoard
+} from '~/redux/activeBoard/activeBoardSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { cloneDeep } from 'lodash'
+import {
+  createNewCardAPI,
+  deleteColumnDetailsAPI,
+  updateColumnDetailsAPI
+} from '~/apis'
+import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 
-function Column({ column, createNewCard, deleteColumnDetail }) {
+function Column({ column }) {
+  const dispatch = useDispatch()
+  const board = useSelector(selectCurrentActiveBoard)
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: column._id,
     data: { ...column }
@@ -59,7 +73,7 @@ function Column({ column, createNewCard, deleteColumnDetail }) {
   const [newCardTitle, setNewCardTitle] = useState('')
 
   // Handle add a new card
-  const addNewCard = () => {
+  const addNewCard = async () => {
     if (!newCardTitle) {
       toast.error('Please enter card title!')
       return
@@ -71,8 +85,30 @@ function Column({ column, createNewCard, deleteColumnDetail }) {
       columnId: column._id
     }
 
-    // Can use Redux, call props function form board _id
-    createNewCard(newCardData)
+    // Call API create a new column and render state board
+    const createdCard = await createNewCardAPI({
+      ...newCardData,
+      boardId: board._id
+    })
+
+    // Cập nhật state board
+    // Phía Front-end chúng ta phải tự làm đúng lại state data board (thay vì phải gọi lại api
+    // fetchBoardDetailsAPI)
+    // Lưu ý: cách làm này phụ thuộc vào tùy lựa chọn và đặc thù dự án, có nơi thì BE sẽ hỗ trợ trả về luôn
+    // toàn bộ Board dù đây có là api tạo Column hay Card đi chăng nữa. => Lúc này FE sẽ nhận hơn.
+    const newBoard = cloneDeep(board)
+    const columnToUpdate = newBoard.columns.find(column => column._id === createdCard.columnId)
+    if (columnToUpdate) {
+      // Fix bug when create first new card in a column, it still remain placeholder card
+      if (columnToUpdate.cards.some(card => card.FE_PlaceholderCard)) {
+        columnToUpdate.cards = [createdCard]
+        columnToUpdate.cardOrderIds = [createdCard._id]
+      } else {
+        columnToUpdate.cards.push(createdCard)
+        columnToUpdate.cardOrderIds.push(createdCard._id)
+      }
+    }
+    dispatch(updateCurrentActiveBoard(newBoard))
 
     toggleOpenNewCardForm()
     setNewCardTitle('')
@@ -91,10 +127,32 @@ function Column({ column, createNewCard, deleteColumnDetail }) {
       // confirmationButtonProps: { color: 'secondary', variant: 'outlined' },
       // cancellationButtonProps: { color: 'inherit' }
     }).then(() => {
-      // Call prop function father component
-      deleteColumnDetail(column._id)
+      // Handle delete a Column anf its Cards inside it
+      // Update correct state Board
+      // The same with moveColumns, it's not affect redux toolit immutability
+      const newBoard = { ...board }
+      newBoard.columns = newBoard.columns.filter(col => col._id !== column._id)
+      newBoard.columnOrderIds = newBoard.columnOrderIds.filter(_id => _id !== column._id)
+      dispatch(updateCurrentActiveBoard(newBoard))
+
+      // Call API update board
+      deleteColumnDetailsAPI(column._id).then(res => {
+        toast.success(res?.deleteResult)
+      })
     }).catch(() => {})
   }
+
+  const onUpdateColumnTitle = (newTitle) => {
+    // Call API update column and update data board in redux
+    updateColumnDetailsAPI(column._id, { title: newTitle }).then((res) => {
+      const newBoard = cloneDeep(board)
+      const columnToUpdate = newBoard.columns.find(col => col._id === column._id)
+      if (columnToUpdate) columnToUpdate.title = newTitle
+
+      dispatch(updateCurrentActiveBoard(newBoard))
+    })
+  }
+
   return (
     <div
       ref={setNodeRef}
@@ -120,13 +178,11 @@ function Column({ column, createNewCard, deleteColumnDetail }) {
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <Typography variant='h6' sx={{
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            cursor: 'pointer'
-          }}>
-            {column?.title}
-          </Typography>
+          <ToggleFocusInput
+            value={column?.title}
+            onChangedValue={onUpdateColumnTitle}
+            data-no-dnd='true'
+          />
           <Box>
             <Tooltip title='More options'>
               <ExpandMoreIcon
@@ -251,6 +307,7 @@ function Column({ column, createNewCard, deleteColumnDetail }) {
               />
               <Box data-no-dnd='true' sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Button
+                  className='interceptor-loading'
                   onClick={addNewCard}
                   variant='contained' color='success' size='small'
                   sx={{
