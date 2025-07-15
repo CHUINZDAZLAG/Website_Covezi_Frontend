@@ -5,6 +5,8 @@ import CircularProgress from '@mui/material/CircularProgress'
 import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
 import { createSearchParams, useNavigate } from 'react-router-dom'
+import { fetchBoardsAPI } from '~/apis'
+import { useDebounceFn } from '~/customHooks/useDebounceFn'
 
 /**
  * Hướng dẫn & ví dụ cái Autocomplele của MUI ở đây:
@@ -29,20 +31,30 @@ function AutoCompleteSearchBoard() {
   const handleInputSearchChange = (event) => {
     const searchValue = event.target?.value
     if (!searchValue) return
-    console.log(searchValue)
 
     // Dùng createSearchParams của react-router-dom để tạo một cái searchPath chuẩn với q[title] để gọi lên API
     const searchPath = `?${createSearchParams({ 'q[title]': searchValue })}`
-    console.log(searchPath)
 
-    // Gọi API...
+    console.log('🚀 ~ handleInputSearchChange ~ searchPath:', searchPath)
+    // Call API
+    setLoading(true)
+    fetchBoardsAPI(searchPath)
+      .then(res => {
+        setBoards(res.boards || [])
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }
-  // Làm useDebounceFn...
+  // Cover handleInputSearchChange by useDebounceFn to delay 1s before call API
+  const debounceSearchBoard = useDebounceFn(handleInputSearchChange, 1000)
 
   // Khi chúng ta select chọn một cái board cụ thể thì sẽ điều hướng tới board đó luôn
   const handleSelectedBoard = (event, selectedBoard) => {
     // Phải kiểm tra nếu tồn tại một cái board cụ thể được select thì mới gọi điều hướng - navigate
-    console.log(selectedBoard)
+    if (selectedBoard) {
+      navigate(`/boards/${selectedBoard._id}`)
+    }
   }
 
   return (
@@ -63,7 +75,9 @@ function AutoCompleteSearchBoard() {
       // Options của Autocomplete nó cần đầu vào là 1 Array, mà boards của chúng ta ban đầu cần cho null để làm cái noOptionsText ở trên nên đoạn này cần thêm cái || [] vào
       options={boards || []}
 
-      // Fix một cái warning của MUI, vì Autocomplete mặc định khi chúng ta chọn giá trị nó sẽ xảy ra sự so sánh object bên dưới, và mặc dù có 2 json objects trông như nhau trong JavaScript nhưng khi compare sẽ ra false. Vậy nên cần compare chuẩn với value dạng Primitive, ví dụ ở đây là dùng String _id thay vì compare toàn bộ cả cái json object board.
+      // Fix một cái warning của MUI, vì Autocomplete mặc định khi chúng ta chọn giá trị nó sẽ xảy ra sự so sánh object bên dưới,
+      // và mặc dù có 2 json objects trông như nhau trong JavaScript nhưng khi compare sẽ ra false. Vậy nên cần compare chuẩn với value dạng Primitive,
+      // ví dụ ở đây là dùng String _id thay vì compare toàn bộ cả cái json object board.
       // Link chi tiết: https://stackoverflow.com/a/65347275/8324172
       isOptionEqualToValue={(option, value) => option._id === value._id}
 
@@ -71,7 +85,7 @@ function AutoCompleteSearchBoard() {
       loading={loading}
 
       // onInputChange sẽ chạy khi gõ nội dung vào thẻ input, cần làm debounce để tránh việc bị spam gọi API
-      onInputChange={handleInputSearchChange}
+      onInputChange={debounceSearchBoard}
 
       // onChange của cả cái Autocomplete sẽ chạy khi chúng ta select một cái kết quả (ở đây là board)
       onChange={handleSelectedBoard}
