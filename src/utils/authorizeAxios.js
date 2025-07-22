@@ -5,30 +5,24 @@ import { refreshTokenAPI } from '~/apis'
 import { logoutUserAPI } from '~/redux/user/userSlice'
 
 /**
- * Không thể import { store } from '~/redux/store' theo cách thông thường ở đây
- * Giải pháp: Inject store: là kỹ thuật khi cần sử dụng biến redux store ở các file ngoài phạm vi component
- như file authorizeAxios hiện tại
- * Hiểu đơn giản: khi ứng dụng bắt đầu chạy lên, code sẽ chạy vào main.jsx đầu tiên, từ bên đó chúng ta gọi
- hàm injectStore ngay lập tức để gán biến mainStore vào biến axiosReduxStore cục bộ trong file này.
- * https://redux.js.org/faq/faq/code-structure#how-can-i-use-the-redux-store-in-non-component-files
+ * Store injection technique for using Redux store outside components
+ * Called from main.jsx to inject the store into this non-component file
  */
 let axiosReduxStore
 export const injectStore = mainStore => { axiosReduxStore = mainStore }
 
-// Khởi tạo một đối tượng Axios (authorizedAxiosInstance) mục đích để custom và cấu hình chung cho dự án.
+// Create custom Axios instance with shared configuration
 let authorizedAxiosInstance = axios.create()
-// Thời gian chờ tối đa của 1 request: đề 10 phút
+// Request timeout: 10 minutes
 authorizedAxiosInstance.defaults.timeout = 1000 * 60 * 10
-// withCredentials: Sẽ cho phép axios tự động gửi cookie trong mỗi request lên BE (phục vụ việc chúng ta sẽ
-// lưu JWT tokens (refresh & access) vào trong httpOnly Cookie của trình duyệt)
+// Enable credentials to send cookies with requests (for JWT tokens in httpOnly cookies)
 authorizedAxiosInstance.defaults.withCredentials = true
 
 /**
- * Cấu hình Interceptors (Bộ đánh chặn vào giữa mọi Request & Response)
- * https://axios-http.com/docs/interceptors
+ * Configure Interceptors for requests and responses
  */
 
-// Interceptor request: intervene each request API, can thiep vo nhung request API
+// Request interceptor
 authorizedAxiosInstance.interceptors.request.use((config) => {
   // Spam click blocking techniques
   interceptorLoadingElements(true)
@@ -39,25 +33,21 @@ authorizedAxiosInstance.interceptors.request.use((config) => {
   return Promise.reject(error)
 })
 
-// Khởi tạo một cái promise cho việc gọi api refresh_token
-// Mục đích tạo Promise này để khi nào gọi api refresh_token xong xuôi thì mới retry lại nhiều api bị lỗi trước đó.
-// https://www.thedutchlab.com/en/insights/using-axios-interceptors-for-refreshing-your-api-token
+// Promise for refresh token API to handle multiple failed requests
 let refreshTokenPromise = null
 
-// Interceptor response: intervene each response from API, can thiep vo nhung response tra ve
+// Response interceptor
 authorizedAxiosInstance.interceptors.response.use((response) => {
-  // Any status code that lie within the range of 2xx cause this function to trigger
-  // Spam click blocking techniques
+  // Success response handler
   interceptorLoadingElements(false)
 
   return response
 }, (error) => {
-  // Any status codes that falls outside the range of 2xx cause this function to trigger
-  // Spam click blocking techniques
+  // Error response handler
   interceptorLoadingElements(false)
 
-  /** Quan trọng: Xử lý Refresh Token tự động */
-  // Trường hợp 1: Nếu như nhận mã 401 từ BE, thì gọi api đăng xuất luôn
+  /** Automatic Refresh Token handling */
+  // Case 1: 401 status - logout immediately
   if (error.response?.status === 401) {
     axiosReduxStore.dispatch(logoutUserAPI(false))
   }

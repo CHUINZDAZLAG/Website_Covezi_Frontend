@@ -1,4 +1,4 @@
-// Config Socket-io from client nd export socketIoInstance
+// Socket.io client instance
 import { io } from 'socket.io-client'
 import { API_ROOT } from './utils/constants'
 export const socketIoInstance = io(API_ROOT)

@@ -1,10 +1,10 @@
 {
-  "name": "vite-trello-web-base-project",
+  "name": "trello-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "author": "Trander",
-  "description": "project",
+  "description": "trello frontend",
   "engines": {
     "node": ">=18.x"
   },

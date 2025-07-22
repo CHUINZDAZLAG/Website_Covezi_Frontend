@@ -5,21 +5,21 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { GlobalStyles } from '@mui/material'
 import { Experimental_CssVarsProvider as CssVarsProvider } from '@mui/material/styles'
 import theme from '~/theme.js'
-// Config react-toastify
+// React Toastify
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-// MUI dialog
+// Material-UI Confirm Dialog
 import { ConfirmProvider } from 'material-ui-confirm'
-// Config Redux Store
+// Redux Store
 import { store } from '~/redux/store'
 import { Provider } from 'react-redux'
-// Config react-router-dom with BrowserRouter
+// React Router
 import { BrowserRouter } from 'react-router-dom'
-// Config Redux-Persist
+// Redux Persist
 import { PersistGate } from 'redux-persist/integration/react'
 import { persistStore } from 'redux-persist'
 const persistor = persistStore(store)
-// Inject store technique: là kỹ thuật khi cần sử dụng biến redux store ở các file ngoài phạm vi component
+// Inject store for external Redux access
 import { injectStore } from './utils/authorizeAxios'
 injectStore(store)
 

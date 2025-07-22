@@ -9,12 +9,8 @@ import Settings from '~/pages/Settings/Settings'
 import Boards from '~/pages/Boards'
 
 /**
- * Giải pháp Clean Code trong việc xác định các route nào cần đăng nhập tài khoản xong thì mới cho truy cập
- * Sử dụng <Outlet /> của react-router-dom để hiển thị các Child Route (xem cách sử dụng trong App() bên
- dưới)
- * https://reactrouter.com/en/main/components/outlet
- * Một bài hướng dẫn khá đầy đủ:
- * https://www.robinwieruch.de/react-router-private-routes/
+ * Protected route component using React Router's Outlet
+ * Redirects unauthenticated users to login page
  */
 const ProtectedRoute = ({ user }) => {
   if (!user) return <Navigate to='/login' replace={true} />
@@ -26,33 +22,28 @@ function App() {
 
   return (
     <Routes>
-      {/* Ở đây cần replace giá trị true để nó thay thế route /, có thể hiểu là route / sẽ không còn nằm
-      trong history của Browser
-
-      Thực hành dễ hiểu hơn bằng cách nhấn Go Home từ trang 404 xong thử quay lại bằng nút back của trình
-      duyệt giữa 2 trường hợp có replace hoặc không có. */}
+      {/* Redirect root path to boards */}
       <Route path='' element={
         <Navigate to='/boards' replace={true} />
       } />
 
-      {/* Protected Routes (Hiểu đơn giản trong dự án của chúng ta là những route chỉ cho truy cập sau khi đã login) */}
+      {/* Protected Routes - require authentication */}
       <Route element={<ProtectedRoute user={currentUser}/>}>
-        {/* <Outlet /> của react-router-dom sẽ chạy vào các child route trong này */}
-        {/* Board details */}
+        {/* Board routes */}
         <Route path='/boards/:boardId' element={<Board />} />
         <Route path='/boards/' element={<Boards />} />
 
-        {/* User Setting */}
+        {/* User settings */}
         <Route path='/settings/account' element={<Settings />} />
         <Route path='/settings/security' element={<Settings />} />
       </Route>
 
-      {/* Authentication */}
+      {/* Authentication routes */}
       <Route path='/login' element={<Auth />} />
       <Route path='/register' element={<Auth />} />
       <Route path='/account/verification' element={<AccountVerification />} />
 
-      {/* 404 not found page */}
+      {/* 404 page */}
       <Route path='*' element={<NotFound />} />
     </Routes>
   )
