@@ -7,6 +7,10 @@
 - **What**: Một ứng dụng web quản lý dự án với giao diện kéo thả (drag & drop), cho phép người dùng tạo boards, lists, và cards để tổ chức công việc
 - **Why**: Thực hành phát triển ứng dụng full-stack với các công nghệ hiện đại, áp dụng các best practices trong React và quản lý state
 
+## � Liên kết dự án
+
+- 🖥️ **Backend Repository**: [Trello-Backend](https://github.com/trander-25/Trello-Backend)
+
 ## ✨ Tính năng chính
 
 - 🔐 **Xác thực người dùng**: Đăng ký, đăng nhập, xác minh tài khoản
