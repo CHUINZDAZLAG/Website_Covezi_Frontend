@@ -5,6 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { GlobalStyles } from '@mui/material'
 import { Experimental_CssVarsProvider as CssVarsProvider } from '@mui/material/styles'
 import theme from '~/theme.js'
+import coverBg from '~/assets/Cover_Covezi.png'
 // React Toastify
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -22,6 +23,8 @@ const persistor = persistStore(store)
 // Inject store for external Redux access
 import { injectStore } from './utils/authorizeAxios'
 injectStore(store)
+// Debug utility for clearing auth data
+import './utils/clearAuth'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
@@ -33,7 +36,17 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             confirmationButtonProps: { color: 'secondary', variant: 'outlined' },
             cancellationButtonProps: { color: 'inherit' }
           }}>
-            <GlobalStyles styles={{ a: { textDecoration: 'none' } }}/>
+            <GlobalStyles styles={{ 
+              a: { textDecoration: 'none' },
+              'html, body, #root': {
+                backgroundImage: `url(${coverBg})`,
+                backgroundSize: 'cover',
+                backgroundAttachment: 'fixed',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                minHeight: '100vh'
+              }
+            }}/>
             <CssBaseline />
             <App />
             <ToastContainer position="bottom-right" theme="colored"/>

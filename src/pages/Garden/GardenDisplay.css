@@ -1,0 +1,19 @@
+.garden-display {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.garden-display canvas {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .garden-display canvas {
+    max-width: 100%;
+    height: auto;
+  }
+}

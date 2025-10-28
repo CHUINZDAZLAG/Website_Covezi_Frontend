@@ -10,6 +10,7 @@ import Tooltip from '@mui/material/Tooltip'
 import PersonAdd from '@mui/icons-material/PersonAdd'
 import Settings from '@mui/icons-material/Settings'
 import Logout from '@mui/icons-material/Logout'
+import DashboardIcon from '@mui/icons-material/Dashboard'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentUser, logoutUserAPI } from '~/redux/user/userSlice'
 import { useConfirm } from 'material-ui-confirm'
@@ -27,6 +28,14 @@ function Profiles() {
 
   const dispatch = useDispatch()
   const currentUser = useSelector(selectCurrentUser)
+
+  // Debug: Log current user to check if role is present
+  console.log('=== PROFILES DEBUG ===')
+  console.log('Current User:', currentUser)
+  console.log('Current User Email:', currentUser?.email)
+  console.log('Email includes admin?:', currentUser?.email?.includes('admin'))
+  console.log('User Role:', currentUser?.role)
+  console.log('Should show admin button?:', currentUser?.email?.includes('admin'))
 
   const confirmLogout = useConfirm()
   const handleLogout = () => {
@@ -79,6 +88,21 @@ function Profiles() {
           </MenuItem>
         </Link>
         <Divider />
+        {currentUser?.email?.includes('admin') && (
+          <>
+            <Link to='/admin' style={{ color: 'inherit' }}>
+              <MenuItem sx={{
+                '&:hover': { color: 'info.light' }
+              }}>
+                <ListItemIcon>
+                  <DashboardIcon fontSize="small" />
+                </ListItemIcon>
+                Admin Dashboard
+              </MenuItem>
+            </Link>
+            <Divider />
+          </>
+        )}
         <MenuItem >
           <ListItemIcon>
             <PersonAdd fontSize="small" />

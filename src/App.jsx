@@ -1,4 +1,19 @@
-import Board from '~/pages/Boards/_id'
+import Homepage from '~/pages/Homepage/Homepage'
+import Products from '~/pages/Products/Products'
+import ProductDetailReal from '~/pages/Products/ProductDetailReal'
+import AdminProductManagement from '~/pages/Admin/AdminProductManagement'
+import AdminDashboard from '~/pages/Admin/AdminDashboard'
+import Orders from '~/pages/Orders/Orders'
+import OrderDetail from '~/pages/Orders/OrderDetail'
+import Challenges from '~/pages/Challenges/Challenges'
+import ChallengeDetail from '~/pages/Challenges/ChallengeDetail'
+import CreateChallenge from '~/pages/Challenges/CreateChallenge'
+import Garden from '~/pages/Garden/Garden'
+import Leaderboard from '~/pages/Leaderboard/Leaderboard'
+import Cart from '~/pages/Cart/Cart'
+import Checkout from '~/pages/Checkout/Checkout'
+import PaymentReturn from '~/pages/Payment/PaymentReturn'
+import PaymentFailed from '~/pages/Payment/PaymentFailed'
 import NotFound from '~/pages/404/NotFound'
 import { Route, Routes, Navigate, Outlet } from 'react-router-dom'
 import Auth from '~/pages/Auth/Auth'
@@ -7,6 +22,7 @@ import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import Settings from '~/pages/Settings/Settings'
 import Boards from '~/pages/Boards'
+import Board from '~/pages/Boards/_id'
 
 /**
  * Protected route component using React Router's Outlet
@@ -17,31 +33,64 @@ const ProtectedRoute = ({ user }) => {
   return <Outlet />
 }
 
+/**
+ * Admin Protected route component
+ * Redirects non-admin users to home page
+ */
+const AdminProtectedRoute = ({ user }) => {
+  if (!user) return <Navigate to='/login' replace={true} />
+  // Check if user is admin by role or email
+  const isAdmin = user.role === 'admin' || user.email?.includes('admin')
+  if (!isAdmin) return <Navigate to='/' replace={true} />
+  return <Outlet />
+}
+
 function App() {
   const currentUser = useSelector(selectCurrentUser)
 
   return (
     <Routes>
-      {/* Redirect root path to boards */}
-      <Route path='' element={
-        <Navigate to='/boards' replace={true} />
-      } />
-
-      {/* Protected Routes - require authentication */}
-      <Route element={<ProtectedRoute user={currentUser}/>}>
-        {/* Board routes */}
-        <Route path='/boards/:boardId' element={<Board />} />
-        <Route path='/boards/' element={<Boards />} />
-
-        {/* User settings */}
-        <Route path='/settings/account' element={<Settings />} />
-        <Route path='/settings/security' element={<Settings />} />
-      </Route>
+      {/* Public Routes */}
+      <Route path='' element={<Homepage />} />
+      <Route path='/products' element={<Products />} />
+      <Route path='/products/:id' element={<ProductDetailReal />} />
+      <Route path='/challenges' element={<Challenges />} />
+      <Route path='/challenges/create' element={<CreateChallenge />} />
+      <Route path='/challenges/:id' element={<ChallengeDetail />} />
 
       {/* Authentication routes */}
       <Route path='/login' element={<Auth />} />
       <Route path='/register' element={<Auth />} />
       <Route path='/account/verification' element={<AccountVerification />} />
+
+      {/* Payment routes */}
+      <Route path='/payment/success' element={<PaymentReturn />} />
+      <Route path='/payment/failed' element={<PaymentFailed />} />
+
+      {/* Protected Routes - require authentication */}
+      <Route element={<ProtectedRoute user={currentUser}/>}>
+        {/* User dashboard */}
+        <Route path='/cart' element={<Cart />} />
+        <Route path='/checkout' element={<Checkout />} />
+        <Route path='/orders' element={<Orders />} />
+        <Route path='/orders/:id' element={<OrderDetail />} />
+        <Route path='/garden' element={<Garden />} />
+        <Route path='/leaderboard' element={<Leaderboard />} />
+        
+        {/* User settings */}
+        <Route path='/settings/account' element={<Settings />} />
+        <Route path='/settings/security' element={<Settings />} />
+        
+        {/* Legacy Trello routes - giữ để tránh conflict */}
+        <Route path='/boards/:boardId' element={<Board />} />
+        <Route path='/boards/' element={<Boards />} />
+      </Route>
+
+      {/* Admin Protected Routes - require authentication + admin role */}
+      <Route element={<AdminProtectedRoute user={currentUser}/>}>
+        <Route path='/admin' element={<AdminDashboard />} />
+        <Route path='/admin/products' element={<AdminProductManagement />} />
+      </Route>
 
       {/* 404 page */}
       <Route path='*' element={<NotFound />} />

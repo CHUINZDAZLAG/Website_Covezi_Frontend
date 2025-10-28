@@ -29,7 +29,7 @@ function ModeSelect() {
       >
         Mode
       </InputLabel>
-      <Select Select
+      <Select
         labelId="label-select-dark-light-mode"
         id="select-dark-light-mode"
         value={mode}
