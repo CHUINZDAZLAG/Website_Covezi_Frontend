@@ -24,7 +24,6 @@ import {
   CircularProgress
 } from '@mui/material'
 import {
-  ShoppingCart,
   Favorite,
   FavoriteBorder,
   LocalShipping,
@@ -96,11 +95,6 @@ const ProductDetailReal = () => {
     if (newQuantity > 0 && newQuantity <= (product?.stock || 1)) {
       setQuantity(newQuantity)
     }
-  }
-
-  const handleAddToCart = () => {
-    toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng`)
-    // TODO: Implement add to cart
   }
 
   const handleOpenVoucherDialog = () => {
@@ -251,18 +245,6 @@ const ProductDetailReal = () => {
                 />
               </Box>
 
-              {/* Eco/Certification Info */}
-              {product.ecoScore && (
-                <Alert severity="info" sx={{ mb: 2, borderRadius: 1 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Recycling fontSize="small" />
-                    <Typography variant="body2">
-                      Sản phẩm thân thiện với môi trường - Điểm Eco: {product.ecoScore}
-                    </Typography>
-                  </Box>
-                </Alert>
-              )}
-
               {/* Description */}
               <Box sx={{ mb: 3, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
                 <Typography variant="body1" color="textSecondary">
@@ -299,19 +281,6 @@ const ProductDetailReal = () => {
 
               {/* Action Buttons */}
               <Stack direction="column" spacing={2} sx={{ mb: 3 }}>
-                {/* Add to Cart */}
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  startIcon={<ShoppingCart />}
-                  onClick={handleAddToCart}
-                  disabled={!product.stock || product.stock === 0}
-                  fullWidth
-                >
-                  Thêm vào giỏ hàng
-                </Button>
-
                 {/* Use Voucher Button */}
                 <Button
                   variant="outlined"
@@ -439,13 +408,6 @@ const ProductDetailReal = () => {
                   color={product.stock > 0 ? 'success' : 'error'}
                   size="small"
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant="body2" color="textSecondary">Eco Score</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Recycling fontSize="small" color="success" />
-                  <Typography variant="body1">{product.ecoScore || 0}/100</Typography>
-                </Box>
               </Grid>
             </Grid>
           </CardContent>

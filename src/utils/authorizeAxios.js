@@ -11,6 +11,38 @@ import { logoutUserAPI } from '~/redux/user/userSlice'
 let axiosReduxStore
 export const injectStore = mainStore => { axiosReduxStore = mainStore }
 
+// Improved token retrieval with error handling and expiration check
+const getValidToken = () => {
+  try {
+    const tokenExpiresAt = localStorage.getItem('tokenExpiresAt')
+    
+    // Check if token exists and is not expired
+    if (tokenExpiresAt) {
+      const expiresAt = parseInt(tokenExpiresAt)
+      const now = Date.now()
+      
+      // If token is expired, clean it up
+      if (expiresAt <= now) {
+        console.warn('[AXIOS] Token expired, clearing from storage')
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('tokenExpiresAt')
+        return null
+      }
+      
+      // Token is still valid
+      const token = localStorage.getItem('accessToken')
+      if (token) {
+        return token
+      }
+    }
+    
+    return localStorage.getItem('accessToken')
+  } catch (error) {
+    console.error('[AXIOS] Error retrieving token:', error)
+    return null
+  }
+}
+
 // Create custom Axios instance with shared configuration
 let authorizedAxiosInstance = axios.create()
 // Request timeout: 10 minutes
@@ -27,16 +59,45 @@ authorizedAxiosInstance.interceptors.request.use((config) => {
   // Spam click blocking techniques
   interceptorLoadingElements(true)
 
+  // Log file upload requests
+  if (config.data instanceof FormData) {
+    console.log('[AXIOS] ========== FormData Request ==========')
+    console.log('[AXIOS] URL:', config.url)
+    console.log('[AXIOS] Method:', config.method)
+    console.log('[AXIOS] Has FormData:', true)
+    console.log('[AXIOS] Headers before:', JSON.stringify(config.headers))
+  }
+
   // Backend uses httpOnly cookies for auth, so withCredentials: true will send them automatically
   // But also support Authorization header from localStorage as fallback
-  const token = localStorage.getItem('accessToken')
+  let token = getValidToken()
+  
+  // If no valid token in localStorage, try to get from Redux store
+  if (!token && axiosReduxStore) {
+    const currentUser = axiosReduxStore.getState().user.currentUser
+    token = currentUser?.accessToken
+    
+    if (token) {
+      console.log('[AXIOS] Using token from Redux store')
+    }
+  }
+  
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+    console.log('[AXIOS] Token attached to request')
+  } else {
+    console.warn('[AXIOS] No valid token found for request')
+  }
+
+  if (config.data instanceof FormData) {
+    console.log('[AXIOS] Final config headers:', JSON.stringify(config.headers))
+    console.log('[AXIOS] ========== End FormData Request ==========')
   }
 
   return config
 }, (error) => {
   // Do something with request error
+  interceptorLoadingElements(false)
   return Promise.reject(error)
 })
 
@@ -48,68 +109,84 @@ authorizedAxiosInstance.interceptors.response.use((response) => {
   // Success response handler
   interceptorLoadingElements(false)
 
+  // Log file upload responses
+  if (response.config.data instanceof FormData) {
+    console.log('[AXIOS] FormData response from:', response.config.url)
+    console.log('[AXIOS] Status:', response.status)
+    console.log('[AXIOS] Response data:', response.data)
+  }
+
   return response
 }, (error) => {
   // Error response handler
   interceptorLoadingElements(false)
 
-  /** Automatic Refresh Token handling */
-  // Case 1: 401 status - logout immediately
-  if (error.response?.status === 401) {
-    axiosReduxStore.dispatch(logoutUserAPI(false))
+  // Log file upload errors
+  if (error.config?.data instanceof FormData) {
+    console.error('[AXIOS] FormData request failed to:', error.config.url)
+    console.error('[AXIOS] Error status:', error.response?.status)
+    console.error('[AXIOS] Error message:', error.message)
+    console.error('[AXIOS] Error response:', error.response?.data)
   }
 
-  // Trường hợp 2: Nếu như nhận mã 410 từ BE, thì sẽ gọi api refresh token để làm mới lại accessToken
-  // Đầu tiên lấy được các request API đang bị lỗi thông qua error.config
+  /** Automatic Refresh Token handling */
+  // Case 1: 401 status - token invalid or missing, logout immediately
+  if (error.response?.status === 401) {
+    console.error('[AXIOS] 401 Unauthorized - Logging out')
+    // Clear token from storage
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('tokenExpiresAt')
+    axiosReduxStore.dispatch(logoutUserAPI(false))
+    return Promise.reject(error)
+  }
+
+  // Case 2: 410 GONE - Token expired, attempt refresh
   const originalRequests = error.config
   if (error.response?.status === 410 && !originalRequests._retry) {
-    // Gán thêm một giá trị _retry luôn = true trong khoảng thời gian chờ, đảm bảo việc refresh token này
-    // chỉ luôn gọi 1 lần tại 1 thời điểm (nhìn lại điều kiện if ngay phía trên)
+    console.log('[AXIOS] 410 Gone - Token expired, attempting refresh')
+    
+    // Mark this request to avoid infinite loop
     originalRequests._retry = true
 
-    // Kiểm tra xem nếu chưa có refreshTokenPromise thì thực hiện gán việc gọi api refresh_token đồng thời
-    // gán vào cho cái refreshTokenPromise
+    // Only create one refresh token request
     if (!refreshTokenPromise) {
       refreshTokenPromise = refreshTokenAPI()
         .then(data => {
-          // Dong thoi accessToklen da nam trong httpOnly cookie (xu li phia BE)
+          console.log('[AXIOS] Token refreshed successfully')
+          // Update token expiration time (token valid for 1 hour from refresh)
+          localStorage.setItem('tokenExpiresAt', (Date.now() + 3600000).toString())
           return data?.accessToken
         })
-        .catch(() => {
-          // Neu nhan bat ky loi nao tu API refresh token thi logout
+        .catch((refreshError) => {
+          console.error('[AXIOS] Token refresh failed:', refreshError.message)
+          // Token refresh failed, logout user
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('tokenExpiresAt')
           axiosReduxStore.dispatch(logoutUserAPI(false))
+          return Promise.reject(refreshError)
         })
         .finally(() => {
-          // Du API co thanh cong hay loi thi van luon luon gan refreshTokenPromise = null
+          // Always reset the promise
           refreshTokenPromise = null
         })
     }
 
-    // Cần trường hợp refreshTokenPromise chạy thành công và xử lý thêm ở đây:
-    // eslint-disable-next-line no-unused-vars
-    return refreshTokenPromise.then(accessToken => {
-    /**
-     * Bước 1: Đối với Trường hợp nếu dự án cần lưu accessToken vào localstorage hoặc đâu đó thì sẽ viết
-     * thêm code xử lý ở đây.
-     * vi du: axio.defaults.headers.common['Authorization'] = 'Bearer ' + accessToken
-     * Hiện tại ở đây không cần bước 1 này vì chúng ta đã đưa accessToken vào cookie (xử lý từ phía BE)
-     * sau khi api refreshToken được gọi thành công.
-     */
-
-      // Bước 2: Bước Quan trọng: Return lại axios instance của chúng ta kết hợp các originalRequests để
-      // gọi lại những api ban đầu bị lỗi
+    // Retry the original request with new token
+    return refreshTokenPromise.then(() => {
+      console.log('[AXIOS] Retrying original request after token refresh')
       return authorizedAxiosInstance(originalRequests)
     })
   }
 
-  // Xu li loi tap trung
+  // Handle general error messages
   let errorMessage = error?.message
   if (error.response?.data?.message) {
     errorMessage = error.response?.data?.message
   }
 
-  // Use toastify to show any error code - except code 410 - GONE serve auto refesh token
+  // Show error notification except for 410 (handled above)
   if (error.response?.status !== 410) {
+    console.error('[AXIOS] Error:', error.response?.status, errorMessage)
     toast.error(errorMessage)
   }
 

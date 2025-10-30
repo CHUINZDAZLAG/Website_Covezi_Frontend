@@ -297,15 +297,6 @@ const PaymentFailed = () => {
               
               <Button
                 variant="outlined"
-                startIcon={<ShoppingBag />}
-                onClick={() => navigate('/cart')}
-                size="large"
-              >
-                Quay lại giỏ hàng
-              </Button>
-              
-              <Button
-                variant="outlined"
                 startIcon={<Home />}
                 onClick={() => navigate('/')}
                 size="large"

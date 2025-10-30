@@ -66,8 +66,12 @@ export const inviteUserToBoardAPI = async (data) => {
 // Users API
 export const registerUserAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/register`, data)
-  toast.success('Account created successfully! Please check and verify your account before logging in!',
-    { theme: 'colored' })
+  return response.data
+}
+
+export const verifyUserPINAPI = async (data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/users/verify-pin`, data)
+  toast.success('Account verified successfully! Now you can login to enjoy our services! Have a good day!', { theme: 'colored' })
   return response.data
 }
 
@@ -98,6 +102,11 @@ export const productAPI = {
     return response.data
   },
   
+  getMyProducts: async (queryString = '') => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/products/my-products?${queryString}`)
+    return response.data
+  },
+  
   getProductDetail: async (productId) => {
     const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/products/${productId}`)
     return response.data
@@ -125,23 +134,45 @@ export const productAPI = {
   
   // Admin Operations
   createProduct: async (formData) => {
-    const response = await authorizedAxiosInstance.post(
-      `${API_ROOT}/v1/products`,
-      formData,
-      { headers: { 'Content-Type': 'multipart/form-data' } }
-    )
-    toast.success('Sản phẩm được tạo thành công!')
-    return response.data
+    console.log('[API] createProduct called with formData, FormData size:', formData.toString().length)
+    try {
+      const response = await authorizedAxiosInstance.post(
+        `${API_ROOT}/v1/products`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      )
+      console.log('[API] createProduct success:', response.data)
+      toast.success('Sản phẩm được tạo thành công!')
+      return response.data
+    } catch (error) {
+      console.error('[API] createProduct error:', error)
+      throw error
+    }
   },
   
   updateProduct: async (productId, formData) => {
-    const response = await authorizedAxiosInstance.put(
-      `${API_ROOT}/v1/products/${productId}`,
-      formData,
-      { headers: { 'Content-Type': 'multipart/form-data' } }
-    )
-    toast.success('Sản phẩm được cập nhật thành công!')
-    return response.data
+    console.log('[API] updateProduct called with productId:', productId, 'FormData size:', formData.toString().length)
+    try {
+      const response = await authorizedAxiosInstance.put(
+        `${API_ROOT}/v1/products/${productId}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      )
+      console.log('[API] updateProduct success:', response.data)
+      toast.success('Sản phẩm được cập nhật thành công!')
+      return response.data
+    } catch (error) {
+      console.error('[API] updateProduct error:', error)
+      throw error
+    }
   },
   
   deleteProduct: async (productId) => {
@@ -155,6 +186,11 @@ export const productAPI = {
       `${API_ROOT}/v1/products/${productId}/stock`,
       { quantity }
     )
+    return response.data
+  },
+  
+  getStats: async () => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/products/stats`)
     return response.data
   }
 }
@@ -207,6 +243,29 @@ export const voucherAPI = {
       { voucherId, reason }
     )
     toast.success('Voucher bị từ chối và quay về trạng thái hoạt động!')
+    return response.data
+  },
+
+  shareVoucher: async (voucherId, data) => {
+    const response = await authorizedAxiosInstance.post(
+      `${API_ROOT}/v1/vouchers/${voucherId}/share`,
+      data
+    )
+    toast.success(`Chia sẻ voucher lên ${data.platform} thành công!`)
+    return response.data
+  },
+
+  submitVoucherProof: async (voucherId, formData) => {
+    const response = await authorizedAxiosInstance.post(
+      `${API_ROOT}/v1/vouchers/${voucherId}/proof`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+    )
+    toast.success('Chứng minh sử dụng voucher đã được gửi! Admin sẽ xem xét sớm.')
     return response.data
   }
 }
@@ -278,48 +337,6 @@ export const orderAPI = {
   
   updateOrderStatus: async (orderId, statusData) => {
     const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/orders/${orderId}/status`, statusData)
-    return response.data
-  }
-}
-
-// Cart API
-export const cartAPI = {
-  getCart: async () => {
-    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/cart`)
-    return response.data
-  },
-  
-  addToCart: async (productId, quantity = 1) => {
-    const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/cart/add`, { productId, quantity })
-    toast.success('Product added to cart!')
-    return response.data
-  },
-  
-  updateCartItem: async (itemId, updateData) => {
-    const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/cart/items/${itemId}`, updateData)
-    return response.data
-  },
-  
-  removeCartItem: async (itemId) => {
-    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/cart/items/${itemId}`)
-    toast.success('Item removed from cart!')
-    return response.data
-  },
-  
-  applyCoupon: async (couponCode) => {
-    const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/cart/coupon`, { code: couponCode })
-    toast.success('Coupon applied successfully!')
-    return response.data
-  },
-  
-  removeCoupon: async () => {
-    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/cart/coupon`)
-    toast.success('Coupon removed!')
-    return response.data
-  },
-  
-  getSelectedItems: async (itemIds) => {
-    const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/cart/selected-items`, { itemIds })
     return response.data
   }
 }
@@ -404,7 +421,7 @@ export const gamificationAPI = {
 
   customizeTree: async (customization) => {
     const response = await authorizedAxiosInstance.post(
-      `${API_ROOT}/v1/gamification/customize-tree`,
+      `${API_ROOT}/v1/garden/customize-tree`,
       customization
     )
     return response.data
@@ -520,10 +537,80 @@ export const gamificationAPI = {
       { levelMin, levelMax, discountPercent }
     )
     return response.data
+  },
+
+  getVoucherConfig: async () => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/voucher-config`)
+    return response.data
+  },
+
+  updateVoucherMilestone: async (level, discountPercent, description = '') => {
+    const response = await authorizedAxiosInstance.put(
+      `${API_ROOT}/v1/admin/voucher-config/${level}`,
+      { discountPercent, description }
+    )
+    toast.success(`Voucher milestone at Level ${level} updated to ${discountPercent}%`)
+    return response.data
+  },
+
+  deleteVoucherMilestone: async (level) => {
+    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/admin/voucher-config/${level}`)
+    toast.success(`Voucher milestone at Level ${level} deleted`)
+    return response.data
+  },
+
+  getVoucherStats: async () => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/voucher-config/stats`)
+    return response.data
   }
 }
 
 // Challenge API
+// Admin Challenge API
+export const adminChallengeAPI = {
+  // Get all challenges (admin view)
+  getAll: async (queryObj = {}) => {
+    const params = new URLSearchParams()
+    Object.entries(queryObj).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        params.append(key, value)
+      }
+    })
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/challenges?${params.toString()}`)
+    return response.data
+  },
+
+  // Get challenge details (admin view with full stats)
+  getDetails: async (challengeId) => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/challenges/${challengeId}`)
+    return response.data
+  },
+
+  // Delete challenge (admin can delete any challenge)
+  deleteChallenge: async (challengeId) => {
+    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/admin/challenges/${challengeId}`)
+    return response.data
+  },
+
+  // Get challenge statistics
+  getStats: async (queryObj = {}) => {
+    const params = new URLSearchParams()
+    Object.entries(queryObj).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        params.append(key, value)
+      }
+    })
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/challenges/stats?${params.toString()}`)
+    return response.data
+  },
+
+  // Get challenges with low participation
+  getLowParticipation: async (minParticipants = 5) => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/challenges/low-participation?minParticipants=${minParticipants}`)
+    return response.data
+  }
+}
+
 export const challengeAPI = {
   // User Operations
   getAll: async (queryString = '') => {
@@ -574,6 +661,12 @@ export const challengeAPI = {
     return response.data
   },
 
+  // Join challenge (award +10 XP on first participation)
+  joinChallenge: async (challengeId) => {
+    const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/challenges/${challengeId}/join`)
+    return response.data
+  },
+
   // Like operations
   likeChallenge: async (challengeId) => {
     const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/challenges/${challengeId}/like`)
@@ -603,6 +696,57 @@ export const challengeAPI = {
 
   unlikeComment: async (challengeId, commentId) => {
     const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/challenges/${challengeId}/comments/${commentId}/like`)
+    return response.data
+  }
+}
+
+// Admin User Management API
+export const adminUserManagementAPI = {
+  // Get all users with pagination, search, filters
+  getAllUsers: async (queryObj = {}) => {
+    const params = new URLSearchParams()
+    Object.entries(queryObj).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        params.append(key, value)
+      }
+    })
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/users?${params.toString()}`)
+    return response.data
+  },
+
+  // Get user statistics dashboard
+  getUserStats: async () => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/users/stats`)
+    return response.data
+  },
+
+  // Get signup statistics
+  getSignupStats: async (days = 30) => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/users/signup/stats?days=${days}`)
+    return response.data
+  },
+
+  // Get login statistics
+  getLoginStats: async () => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/users/login/stats`)
+    return response.data
+  },
+
+  // Delete user
+  deleteUser: async (userId) => {
+    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/admin/users/${userId}`)
+    return response.data
+  },
+
+  // Update user status (activate/deactivate)
+  updateUserStatus: async (userId, isActive) => {
+    const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/admin/users/${userId}/status`, { isActive })
+    return response.data
+  },
+
+  // Update user role
+  updateUserRole: async (userId, role) => {
+    const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/admin/users/${userId}/role`, { role })
     return response.data
   }
 }

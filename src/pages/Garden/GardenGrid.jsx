@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { useSelector } from 'react-redux'
 import {
   Box,
   Button,
@@ -43,16 +44,51 @@ const getVoucherForLevel = (level) => {
 }
 
 const GardenGrid = ({ garden, treeCustomization, onRefresh, onGardenUpdate }) => {
+  const reduxGarden = useSelector(state => state.gamification.garden)
   const [selectedPlot, setSelectedPlot] = useState(null)
   const [plantDialogOpen, setPlantDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [xpTransactions, setXpTransactions] = useState([])
   const [showLevelUpAlert, setShowLevelUpAlert] = useState(false)
   const [levelUpData, setLevelUpData] = useState(null)
+  // Force re-render when garden data changes
+  const [, forceUpdate] = useState({})
+  
+  // Prioritize Redux garden state (always up-to-date from all pages), fall back to props
+  // Use useMemo to ensure this recalculates when Redux or props change
+  const gardenData = useMemo(() => {
+    const data = reduxGarden || garden
+    console.log('[GARDENGRID] gardenData recalculated:', {
+      currentXp: data?.currentXp,
+      nextLevelXp: data?.nextLevelXp,
+      level: data?.level,
+      source: reduxGarden ? 'reduxGarden' : 'garden prop'
+    })
+    return data
+  }, [reduxGarden, garden])
+
+  // Trigger re-render when garden data changes
+  useEffect(() => {
+    forceUpdate({})
+  }, [gardenData?.currentXp, gardenData?.level, gardenData?.nextLevelXp])
 
   // Get or initialize plots
-  const plots = garden?.gardenPlots || []
-  const currentLevel = garden?.level || 1
+  const plots = gardenData?.gardenPlots || []
+  const currentLevel = gardenData?.level || 1
+
+  // Watch for Redux garden updates (XP/level changes from any page)
+  useEffect(() => {
+    if (!reduxGarden) return
+    
+    if (reduxGarden?.currentXp !== garden?.currentXp || reduxGarden?.level !== garden?.level) {
+      console.log('[GARDENGRID] Redux garden updated - level:', reduxGarden.level, 'xp:', reduxGarden.currentXp)
+      // Notify parent if garden prop is stale
+      if (garden && (reduxGarden.currentXp !== garden.currentXp || reduxGarden.level !== garden.level)) {
+        console.log('[GARDENGRID] Garden data out of sync, calling onGardenUpdate')
+        onGardenUpdate?.(reduxGarden)
+      }
+    }
+  }, [reduxGarden?.currentXp, reduxGarden?.level, reduxGarden, garden?.currentXp, garden?.level, garden, onGardenUpdate])
 
   // Trigger XP transaction animation
   const triggerXpTransaction = (xpAmount, action, x, y) => {
@@ -93,8 +129,6 @@ const GardenGrid = ({ garden, treeCustomization, onRefresh, onGardenUpdate }) =>
       addGameNotification(voucherNotif)
     }
   }
-
-
 
   // Plant tree in selected plot
   const handlePlantTree = async () => {
@@ -371,8 +405,6 @@ const GardenGrid = ({ garden, treeCustomization, onRefresh, onGardenUpdate }) =>
           🐝
         </Box>
 
-
-
         <CardContent sx={{ p: 3, position: 'relative', zIndex: 2 }}>
           {/* Tree Name Label */}
           <Box
@@ -507,7 +539,7 @@ const GardenGrid = ({ garden, treeCustomization, onRefresh, onGardenUpdate }) =>
                 sx={{
                   height: '100%',
                   background: 'linear-gradient(90deg, #B6349A 0%, #FF8C3C 50%, #FF001A 100%)',
-                  width: `${Math.min(((garden?.currentXp || 0) / (garden?.nextLevelXp || 100)) * 100, 100)}%`,
+                  width: `${Math.min(((gardenData?.currentXp || 0) / (gardenData?.nextLevelXp || 100)) * 100, 100)}%`,
                   borderRadius: '6px',
                   boxShadow: '0 0 12px rgba(182, 52, 154, 0.6)',
                   transition: 'width 0.3s ease'
@@ -518,10 +550,10 @@ const GardenGrid = ({ garden, treeCustomization, onRefresh, onGardenUpdate }) =>
             {/* Progress Text */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#32778E' }}>
               <Box>
-                {Math.round(((garden?.currentXp || 0) / (garden?.nextLevelXp || 100)) * 100)}% đến Level {currentLevel + 1}
+                {Math.round(((gardenData?.currentXp || 0) / (gardenData?.nextLevelXp || 100)) * 100)}% đến Level {currentLevel + 1}
               </Box>
               <Box>
-                {garden?.currentXp || 0} / {garden?.nextLevelXp || 100} XP
+                {gardenData?.currentXp || 0} / {gardenData?.nextLevelXp || 100} XP
               </Box>
             </Box>
           </Box>

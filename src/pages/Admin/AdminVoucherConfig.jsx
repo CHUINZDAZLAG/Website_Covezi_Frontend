@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Box,
   Paper,
@@ -186,86 +186,150 @@ function AdminVoucherConfig() {
   }))
 
   return (
-    <Box>
-      {/* Stats Cards */}
-      {stats && (
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ bgcolor: '#e3f2fd' }}>
-              <CardContent>
-                <Box sx={{ fontSize: '28px', fontWeight: 'bold', color: '#1976d2' }}>
-                  {milestonesArray.length}
-                </Box>
-                <Box sx={{ fontSize: '12px', color: '#666', mt: 1 }}>
-                  Total Milestones
-                </Box>
-              </CardContent>
-            </Card>
+    <Box sx={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f8f9ff 0%, #fff5f0 100%)',
+      pb: 4
+    }}>
+      <Box sx={{ p: 3 }}>
+        {/* Stats Cards */}
+        {stats && (
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{
+                background: 'linear-gradient(135deg, #FF6B7A 0%, #FF8C3C 100%)',
+                color: 'white',
+                borderRadius: 2,
+                boxShadow: '0 4px 20px rgba(255, 107, 122, 0.2)',
+                border: 'none'
+              }}>
+                <CardContent>
+                  <Box sx={{ fontSize: '2rem', fontWeight: 900 }}>
+                    {milestonesArray.length}
+                  </Box>
+                  <Box sx={{ fontSize: '0.9rem', opacity: 0.95, fontWeight: 500, mt: 1 }}>
+                    Tổng Milesstones
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{
+                background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
+                color: 'white',
+                borderRadius: 2,
+                boxShadow: '0 4px 20px rgba(76, 175, 80, 0.2)',
+                border: 'none'
+              }}>
+                <CardContent>
+                  <Box sx={{ fontSize: '2rem', fontWeight: 900 }}>
+                    {stats.totalVouchers}
+                  </Box>
+                  <Box sx={{ fontSize: '0.9rem', opacity: 0.95, fontWeight: 500, mt: 1 }}>
+                    Tổng Vouchers
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{
+                background: 'linear-gradient(135deg, #B6349A 0%, #FF6B7A 100%)',
+                color: 'white',
+                borderRadius: 2,
+                boxShadow: '0 4px 20px rgba(182, 52, 154, 0.2)',
+                border: 'none'
+              }}>
+                <CardContent>
+                  <Box sx={{ fontSize: '2rem', fontWeight: 900 }}>
+                    {stats.usedVouchers}
+                  </Box>
+                  <Box sx={{ fontSize: '0.9rem', opacity: 0.95, fontWeight: 500, mt: 1 }}>
+                    Vouchers Đã Dùng
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{
+                background: 'linear-gradient(135deg, #FFB366 0%, #FFA84D 100%)',
+                color: 'white',
+                borderRadius: 2,
+                boxShadow: '0 4px 20px rgba(255, 179, 102, 0.2)',
+                border: 'none'
+              }}>
+                <CardContent>
+                  <Box sx={{ fontSize: '2rem', fontWeight: 900 }}>
+                    {validityDays}
+                  </Box>
+                  <Box sx={{ fontSize: '0.9rem', opacity: 0.95, fontWeight: 500, mt: 1 }}>
+                    Ngày Hiệu Lực
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ bgcolor: '#e8f5e9' }}>
-              <CardContent>
-                <Box sx={{ fontSize: '28px', fontWeight: 'bold', color: '#388e3c' }}>
-                  {stats.totalVouchers}
-                </Box>
-                <Box sx={{ fontSize: '12px', color: '#666', mt: 1 }}>
-                  Total Vouchers
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ bgcolor: '#f3e5f5' }}>
-              <CardContent>
-                <Box sx={{ fontSize: '28px', fontWeight: 'bold', color: '#7b1fa2' }}>
-                  {stats.usedVouchers}
-                </Box>
-                <Box sx={{ fontSize: '12px', color: '#666', mt: 1 }}>
-                  Used Vouchers
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ bgcolor: '#fff3e0' }}>
-              <CardContent>
-                <Box sx={{ fontSize: '28px', fontWeight: 'bold', color: '#f57c00' }}>
-                  {validityDays}
-                </Box>
-                <Box sx={{ fontSize: '12px', color: '#666', mt: 1 }}>
-                  Validity Days
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      )}
+        )}
 
-      {error && <Alert severity='error'>{error}</Alert>}
+        {error && <Alert severity='error'>{error}</Alert>}
 
-      {/* Validity Settings */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Box sx={{ fontSize: '16px', fontWeight: '600', mb: 2 }}>
-          ⚙️ Voucher Validity Settings
-        </Box>
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end' }}>
-          <TextField
-            type='number'
-            label='Validity Days'
-            value={validityDays}
-            onChange={(e) => setValidityDays(parseInt(e.target.value))}
-            size='small'
-            sx={{ width: '150px' }}
-            inputProps={{ min: 1, max: 365 }}
-          />
-          <Button variant='contained' onClick={handleUpdateValidity}>
-            Update Validity
-          </Button>
-          <Box sx={{ fontSize: '12px', color: '#666', ml: 2 }}>
-            (Vouchers will expire after {validityDays} days)
+        {/* Validity Settings */}
+        <Paper sx={{
+          p: 3,
+          mb: 3,
+          borderRadius: 2,
+          border: '1px solid #e0e0e0',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          background: 'linear-gradient(135deg, rgba(182, 52, 154, 0.05) 0%, rgba(255, 107, 122, 0.05) 100%)'
+        }}>
+          <Box sx={{ fontSize: '1.1rem', fontWeight: 700, color: '#B6349A', mb: 2 }}>
+            ⚙️ Cài đặt Hiệu Lực Voucher
           </Box>
-        </Box>
-      </Paper>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <TextField
+              type='number'
+              label='Ngày Hiệu Lực'
+              value={validityDays}
+              onChange={(e) => setValidityDays(parseInt(e.target.value))}
+              size='small'
+              sx={{
+                width: '180px',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 1.5,
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#B6349A'
+                  }
+                },
+                '& .MuiOutlinedInput-root.Mui-focused': {
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#B6349A'
+                  }
+                }
+              }}
+              inputProps={{ min: 1, max: 365 }}
+            />
+            <Button
+              variant='contained'
+              onClick={handleUpdateValidity}
+              sx={{
+                background: 'linear-gradient(135deg, #d946a6 0%, #c71585 100%)',
+                color: 'white',
+                fontWeight: 600,
+                textTransform: 'none',
+                borderRadius: 1.5,
+                '&:hover': {
+                  transform: 'scale(1.02)',
+                  boxShadow: '0 4px 20px rgba(217, 70, 166, 0.3)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Cập nhật Hiệu Lực
+            </Button>
+            <Box sx={{ fontSize: '0.9rem', color: '#666', ml: 2 }}>
+              (Vouchers sẽ hết hạn sau {validityDays} ngày)
+            </Box>
+          </Box>
+        </Paper>
 
       {/* Milestones Table */}
       <Paper sx={{ mb: 3 }}>
@@ -433,6 +497,7 @@ function AdminVoucherConfig() {
           </Button>
         </DialogActions>
       </Dialog>
+    </Box>
     </Box>
   )
 }

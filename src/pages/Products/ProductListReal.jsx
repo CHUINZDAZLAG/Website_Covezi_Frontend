@@ -18,7 +18,6 @@ import {
   Pagination
 } from '@mui/material'
 import {
-  ShoppingCart,
   FavoriteBorder,
   Favorite,
   Search,
@@ -83,11 +82,6 @@ const ProductListReal = () => {
       newFavorites.add(productId)
     }
     setFavorites(newFavorites)
-  }
-
-  const handleAddToCart = (product) => {
-    toast.success(`Đã thêm "${product.name}" vào giỏ hàng`)
-    // TODO: Implement add to cart
   }
 
   const handleViewDetail = (productId) => {
@@ -346,16 +340,6 @@ const ProductListReal = () => {
 
                       {/* Action Buttons */}
                       <Box sx={{ p: 1, display: 'flex', gap: 1 }}>
-                        <Button
-                          size="small"
-                          variant="contained"
-                          fullWidth
-                          onClick={() => handleAddToCart(product)}
-                          startIcon={<ShoppingCart />}
-                          disabled={!product.stock || product.stock === 0}
-                        >
-                          Thêm
-                        </Button>
                         <Button
                           size="small"
                           variant="outlined"

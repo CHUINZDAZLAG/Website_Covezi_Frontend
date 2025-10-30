@@ -18,7 +18,13 @@ import {
   Tab,
   Stack,
   Skeleton,
-  IconButton
+  IconButton,
+  Menu,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material'
 import {
   People,
@@ -29,7 +35,10 @@ import {
   FavoriteBorder,
   ChatBubbleOutline,
   PersonAdd,
-  ThumbUp
+  ThumbUp,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  MoreVert as MoreVertIcon
 } from '@mui/icons-material'
 import { toast } from 'react-toastify'
 import { challengeAPI } from '~/apis'
@@ -48,6 +57,12 @@ function Challenges() {
   const [activeTab, setActiveTab] = useState(0)
   const [sortBy, setSortBy] = useState('newest')
   const [favorites, setFavorites] = useState(new Set())
+  
+  // Edit/Delete menu state
+  const [menuAnchor, setMenuAnchor] = useState(null)
+  const [selectedChallengeId, setSelectedChallengeId] = useState(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [deletingId, setDeletingId] = useState(null)
 
   useEffect(() => {
     fetchChallenges()
@@ -64,6 +79,9 @@ function Challenges() {
       } else if (activeTab === 1) {
         // My created challenges
         response = await challengeAPI.getMyCreatedChallenges(`page=${page}&limit=12`)
+      } else if (activeTab === 2) {
+        // My joined challenges
+        response = await challengeAPI.getDetails('my', `page=${page}&limit=12`)
       }
 
       if (response?.data) {
@@ -120,6 +138,46 @@ function Challenges() {
     })
   }
 
+  // Edit/Delete handlers
+  const handleMenuOpen = (e, challengeId) => {
+    setMenuAnchor(e.currentTarget)
+    setSelectedChallengeId(challengeId)
+  }
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null)
+    setSelectedChallengeId(null)
+  }
+
+  const handleEditChallenge = () => {
+    navigate(`/challenges/edit/${selectedChallengeId}`)
+    handleMenuClose()
+  }
+
+  const handleDeleteClick = () => {
+    setDeleteConfirmOpen(true)
+    setDeletingId(selectedChallengeId)
+    handleMenuClose()
+  }
+
+  const handleConfirmDelete = async () => {
+    try {
+      await challengeAPI.deleteChallenge(deletingId)
+      toast.success('Challenge deleted successfully')
+      setDeleteConfirmOpen(false)
+      setDeletingId(null)
+      fetchChallenges()
+    } catch (error) {
+      console.error('Error deleting challenge:', error)
+      toast.error(error.response?.data?.message || 'Failed to delete challenge')
+    }
+  }
+
+  const handleCancelDelete = () => {
+    setDeleteConfirmOpen(false)
+    setDeletingId(null)
+  }
+
   const ChallengeCard = ({ challenge, index }) => {
     // Gradient colors for beautiful boxes - lighter pastel colors
     const gradients = [
@@ -168,7 +226,7 @@ function Challenges() {
       >
         <CardMedia
           component="img"
-          image={challenge.image || 'https://via.placeholder.com/400x200?text=Challenge'}
+          image={challenge.image || 'https://placehold.co/400x200?text=Challenge'}
           alt={challenge.title}
           sx={{ 
             width: '100%',
@@ -313,33 +371,44 @@ function Challenges() {
       </CardContent>
 
       {/* Action Buttons */}
-      <CardActions sx={{ justifyContent: 'space-around', pt: 1, pb: 1.5, px: 2 }}>
-        <Button
-          size="small"
-          startIcon={favorites.has(challenge._id) ? <Favorite sx={{ fontSize: 18 }} /> : <FavoriteBorder sx={{ fontSize: 18 }} />}
-          sx={{ 
-            color: favorites.has(challenge._id) ? '#FF6B7A' : '#666', 
-            fontWeight: 600,
-            textTransform: 'none',
-            fontSize: '0.875rem'
-          }}
-          onClick={() => toggleFavorite(challenge._id)}
-        >
-          {favorites.has(challenge._id) ? 'Liked' : 'Like'}
-        </Button>
-        <Button
-          size="small"
-          startIcon={<PersonAdd sx={{ fontSize: 18 }} />}
-          sx={{ 
-            color: '#B6349A', 
-            fontWeight: 600,
-            textTransform: 'none',
-            fontSize: '0.875rem'
-          }}
-          onClick={() => navigate(`/challenges/${challenge._id}`)}
-        >
-          Join
-        </Button>
+      <CardActions sx={{ justifyContent: 'space-between', pt: 1, pb: 1.5, px: 2 }}>
+        <Stack direction="row" spacing={1}>
+          <Button
+            size="small"
+            startIcon={favorites.has(challenge._id) ? <Favorite sx={{ fontSize: 18 }} /> : <FavoriteBorder sx={{ fontSize: 18 }} />}
+            sx={{ 
+              color: favorites.has(challenge._id) ? '#FF6B7A' : '#666', 
+              fontWeight: 600,
+              textTransform: 'none',
+              fontSize: '0.875rem'
+            }}
+            onClick={() => toggleFavorite(challenge._id)}
+          >
+            {favorites.has(challenge._id) ? 'Liked' : 'Like'}
+          </Button>
+          <Button
+            size="small"
+            startIcon={<PersonAdd sx={{ fontSize: 18 }} />}
+            sx={{ 
+              color: '#B6349A', 
+              fontWeight: 600,
+              textTransform: 'none',
+              fontSize: '0.875rem'
+            }}
+            onClick={() => navigate(`/challenges/${challenge._id}`)}
+          >
+            Join
+          </Button>
+        </Stack>
+        {challenge.createdBy === user?._id && (
+          <IconButton
+            size="small"
+            onClick={(e) => handleMenuOpen(e, challenge._id)}
+            sx={{ color: '#666' }}
+          >
+            <MoreVertIcon fontSize="small" />
+          </IconButton>
+        )}
       </CardActions>
     </Card>
     </Box>
@@ -353,7 +422,7 @@ function Challenges() {
         <Box sx={{ mb: 4 }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h4" component="h1" sx={{ color: '#32778E', fontWeight: 'bold' }}>
-            🌱 Green Challenges
+            Green Challenges
           </Typography>
           
           {user && (
@@ -405,6 +474,7 @@ function Challenges() {
         <Tabs value={activeTab} onChange={handleTabChange}>
           <Tab label="Tất cả challenges" />
           {user && <Tab label="Challenges của tôi" />}
+          {user && <Tab label="Challenges tham gia" />}
         </Tabs>
       </Box>
 
@@ -493,6 +563,52 @@ function Challenges() {
         </>
       )}
       </Container>
+
+      {/* Edit/Delete Menu */}
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem onClick={handleEditChallenge}>
+          <EditIcon sx={{ fontSize: 18, mr: 1 }} />
+          Edit Challenge
+        </MenuItem>
+        <MenuItem onClick={handleDeleteClick} sx={{ color: '#FF6B7A' }}>
+          <DeleteIcon sx={{ fontSize: 18, mr: 1 }} />
+          Delete Challenge
+        </MenuItem>
+      </Menu>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteConfirmOpen}
+        onClose={handleCancelDelete}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Delete Challenge</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this challenge? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDelete}
+            variant="contained"
+            sx={{
+              backgroundColor: '#FF6B7A',
+              '&:hover': { backgroundColor: '#FF5566' }
+            }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

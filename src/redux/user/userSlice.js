@@ -52,6 +52,10 @@ export const userSlice = createSlice({
       // The response includes accessToken from backend login endpoint
       if (user?.accessToken) {
         localStorage.setItem('accessToken', user.accessToken)
+        // Save login timestamp (current time in milliseconds)
+        localStorage.setItem('loginTime', Date.now().toString())
+        // Token expires in 1 hour (3600000ms), so calculate expiration time
+        localStorage.setItem('tokenExpiresAt', (Date.now() + 3600000).toString())
         // Also set it in axios headers immediately
         authorizedAxiosInstance.defaults.headers.common['Authorization'] = `Bearer ${user.accessToken}`
       }
@@ -62,8 +66,10 @@ export const userSlice = createSlice({
      * Kết hợp ProtectedRoute đã làm ở App.js => code sẽ điều hướng chuẩn về trang Login
      */
       state.currentUser = null
-      // Clear token from localStorage on logout
+      // Clear all authentication data from localStorage on logout
       localStorage.removeItem('accessToken')
+      localStorage.removeItem('loginTime')
+      localStorage.removeItem('tokenExpiresAt')
     })
     builder.addCase(updateUserAPI.fulfilled, (state, action) => {
       const user = action.payload

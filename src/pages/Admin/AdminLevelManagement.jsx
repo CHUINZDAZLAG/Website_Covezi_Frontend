@@ -34,8 +34,10 @@ import {
   Edit as EditIcon,
   Add as AddIcon,
   Search as SearchIcon,
+  CloudUpload as CloudUploadIcon,
 } from '@mui/icons-material'
 import { API_ENDPOINT } from '~/apis'
+import { gamificationAPI } from '~/apis'
 import { toast } from 'react-toastify'
 
 function TabPanel({ children, value, index }) {
@@ -184,33 +186,79 @@ function AdminLevelManagement() {
   }
 
   // Voucher Management
-  const handleAddVoucher = () => {
+  const handleAddVoucher = async () => {
     if (!voucherForm.voucherName) {
       toast.error('Please enter voucher name')
       return
     }
-    const newVoucher = {
-      _id: Date.now().toString(),
-      ...voucherForm,
-      createdAt: new Date().toISOString(),
+    
+    try {
+      // Sync to backend
+      await gamificationAPI.updateVoucherMilestone(
+        selectedLevel,
+        voucherForm.discountPercent,
+        voucherForm.voucherName
+      )
+      
+      const newVoucher = {
+        _id: Date.now().toString(),
+        ...voucherForm,
+        createdAt: new Date().toISOString(),
+      }
+      const updated = [...levelVouchers, newVoucher]
+      setLevelVouchers(updated)
+      saveLevelData(levelChallenges, levelProducts, updated)
+      setVoucherForm({
+        requiredLevel: selectedLevel,
+        discountPercent: 10,
+        voucherName: '',
+        validityDays: 90,
+      })
+      setOpenVoucherDialog(false)
+      toast.success('Voucher added and synced to backend')
+    } catch (error) {
+      toast.error('Failed to sync voucher to backend')
+      console.error(error)
     }
-    const updated = [...levelVouchers, newVoucher]
-    setLevelVouchers(updated)
-    saveLevelData(levelChallenges, levelProducts, updated)
-    setVoucherForm({
-      requiredLevel: selectedLevel,
-      discountPercent: 10,
-      voucherName: '',
-      validityDays: 90,
-    })
-    setOpenVoucherDialog(false)
-    toast.success('Voucher added to level')
   }
 
-  const handleRemoveVoucher = (voucherId) => {
-    const updated = levelVouchers.filter(v => v._id !== voucherId)
-    setLevelVouchers(updated)
-    saveLevelData(levelChallenges, levelProducts, updated)
+  const handleRemoveVoucher = async (voucherId) => {
+    try {
+      // Find the voucher to get its level
+      const voucher = levelVouchers.find(v => v._id === voucherId)
+      if (!voucher) return
+
+      // Sync deletion to backend
+      await gamificationAPI.deleteVoucherMilestone(selectedLevel)
+
+      const updated = levelVouchers.filter(v => v._id !== voucherId)
+      setLevelVouchers(updated)
+      saveLevelData(levelChallenges, levelProducts, updated)
+      toast.success('Voucher deleted and synced')
+    } catch (error) {
+      toast.error('Failed to sync deletion to backend')
+      console.error(error)
+    }
+  }
+
+  const handleSyncAllVouchers = async () => {
+    setLoading(true)
+    try {
+      // Sync all vouchers for current level
+      for (const voucher of levelVouchers) {
+        await gamificationAPI.updateVoucherMilestone(
+          selectedLevel,
+          voucher.discountPercent,
+          voucher.voucherName
+        )
+      }
+      toast.success(`All vouchers for Level ${selectedLevel} synced to backend`)
+    } catch (error) {
+      toast.error('Failed to sync vouchers')
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const saveLevelData = (challenges, products, vouchers) => {
@@ -392,13 +440,21 @@ function AdminLevelManagement() {
 
       {/* Vouchers Tab */}
       <TabPanel value={tabValue} index={2}>
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenVoucherDialog(true)}
           >
             Create Voucher
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<CloudUploadIcon />}
+            onClick={handleSyncAllVouchers}
+            disabled={levelVouchers.length === 0}
+          >
+            Sync to Backend
           </Button>
         </Box>
 

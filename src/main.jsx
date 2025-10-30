@@ -25,11 +25,12 @@ import { injectStore } from './utils/authorizeAxios'
 injectStore(store)
 // Debug utility for clearing auth data
 import './utils/clearAuth'
+// Authorization utilities
+import authorizeAxios from './utils/authorizeAxios'
 
 // Restore token from localStorage on app start (for page refresh)
 const token = localStorage.getItem('accessToken')
 if (token) {
-  const authorizeAxios = require('./utils/authorizeAxios').default
   authorizeAxios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }
 

@@ -11,13 +11,15 @@ import {
   IconButton
 } from '@mui/material'
 import {
-  EmojiEvents,
   CheckCircle,
   CardGiftcard,
   Star,
-  TrendingUp
+  TrendingUp,
+  GroupAdd,
+  Favorite,
+  EmojiEvents
 } from '@mui/icons-material'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { gamificationAPI } from '~/apis/index'
 import moment from 'moment'
@@ -44,12 +46,11 @@ function GamificationNotifications() {
 
     const pollGamificationUpdates = async () => {
       try {
-        const response = await gamificationAPI.getUserGarden()
-        const garden = response.data
+        await gamificationAPI.getUserGarden()
 
         // Check if we have stored game events
         const storedEvents = JSON.parse(localStorage.getItem('gamificationEvents') || '[]')
-        
+
         if (storedEvents.length > 0) {
           setNotifications(prev => [...storedEvents, ...prev])
           setUnreadCount(prev => prev + storedEvents.length)
@@ -67,7 +68,7 @@ function GamificationNotifications() {
 
     // Poll every 30 seconds only if user exists
     const interval = setInterval(pollGamificationUpdates, 30000)
-    
+
     // Initial check
     pollGamificationUpdates()
 
@@ -79,28 +80,17 @@ function GamificationNotifications() {
       case 'xp_gain':
         return <TrendingUp sx={{ color: '#FFD700' }} />
       case 'level_up':
-        return <EmojiEvents sx={{ color: '#FF6B6B' }} />
+        return <Star sx={{ color: '#FF6B6B' }} />
       case 'voucher_earned':
         return <CardGiftcard sx={{ color: '#4CAF50' }} />
       case 'challenge_complete':
         return <CheckCircle sx={{ color: '#2196F3' }} />
+      case 'challenge_participant':
+        return <GroupAdd sx={{ color: '#9C27B0' }} />
+      case 'challenge_liked':
+        return <Favorite sx={{ color: '#FF69B4' }} />
       default:
         return <Star sx={{ color: '#9C27B0' }} />
-    }
-  }
-
-  const getNotificationColor = (type) => {
-    switch (type) {
-      case 'xp_gain':
-        return 'info'
-      case 'level_up':
-        return 'error'
-      case 'voucher_earned':
-        return 'success'
-      case 'challenge_complete':
-        return 'primary'
-      default:
-        return 'default'
     }
   }
 
@@ -114,6 +104,10 @@ function GamificationNotifications() {
         return `🎁 Congratulations! You earned a ${notification.discount}% voucher at Level ${notification.level}!`
       case 'challenge_complete':
         return `Challenge completed! +${notification.xpGained} XP`
+      case 'challenge_participant':
+        return `👤 ${notification.participantName || 'Someone'} joined your challenge!`
+      case 'challenge_liked':
+        return `❤️ ${notification.likerName || 'Someone'} liked your challenge!`
       default:
         return notification.message
     }
@@ -125,9 +119,9 @@ function GamificationNotifications() {
         <IconButton
           onClick={handleClick}
           sx={{
-            color: '#063B71',
+            color: '#32778E',
             position: 'relative',
-            '&:hover': { bgcolor: 'rgba(6, 59, 113, 0.08)' }
+            '&:hover': { bgcolor: 'rgba(50, 119, 142, 0.08)' }
           }}
         >
           <Badge
@@ -141,7 +135,7 @@ function GamificationNotifications() {
               }
             }}
           >
-            <EmojiEvents />
+            <Star sx={{ fontSize: '1.8rem' }} />
           </Badge>
         </IconButton>
       </Tooltip>
@@ -185,13 +179,17 @@ function GamificationNotifications() {
                     alignItems: 'flex-start',
                     py: 1.5,
                     px: 2,
-                    bgcolor: notification.type === 'level_up' ? 'rgba(255, 107, 107, 0.05)' : 
-                           notification.type === 'voucher_earned' ? 'rgba(76, 175, 80, 0.05)' : 
-                           'transparent',
+                    bgcolor: notification.type === 'level_up' ? 'rgba(255, 107, 107, 0.05)' :
+                      notification.type === 'voucher_earned' ? 'rgba(76, 175, 80, 0.05)' :
+                        notification.type === 'challenge_participant' ? 'rgba(156, 39, 176, 0.05)' :
+                          notification.type === 'challenge_liked' ? 'rgba(255, 105, 180, 0.05)' :
+                            'transparent',
                     '&:hover': {
-                      bgcolor: notification.type === 'level_up' ? 'rgba(255, 107, 107, 0.1)' : 
-                             notification.type === 'voucher_earned' ? 'rgba(76, 175, 80, 0.1)' : 
-                             'rgba(0,0,0,0.05)'
+                      bgcolor: notification.type === 'level_up' ? 'rgba(255, 107, 107, 0.1)' :
+                        notification.type === 'voucher_earned' ? 'rgba(76, 175, 80, 0.1)' :
+                          notification.type === 'challenge_participant' ? 'rgba(156, 39, 176, 0.1)' :
+                            notification.type === 'challenge_liked' ? 'rgba(255, 105, 180, 0.1)' :
+                              'rgba(0,0,0,0.05)'
                     }
                   }}
                 >

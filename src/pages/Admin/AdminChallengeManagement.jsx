@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Box,
   Container,
@@ -36,9 +36,8 @@ import {
   Send as SendIcon,
   Search as SearchIcon
 } from '@mui/icons-material'
-import { challengeAPI } from '~/apis'
+import { challengeAPI, adminChallengeAPI } from '~/apis'
 import { toast } from 'react-toastify'
-import AppBar from '~/components/AppBar/AppBar'
 import { useSelector } from 'react-redux'
 
 function AdminChallengeManagement() {
@@ -86,8 +85,10 @@ function AdminChallengeManagement() {
   const fetchChallenges = async () => {
     try {
       setLoading(true)
-      const response = await challengeAPI.getCreatedChallenges({ limit: 100 })
-      setChallenges(response.data?.challenges || response.data || [])
+      const response = await adminChallengeAPI.getAll({ limit: 100 })
+      // Handle different response formats from backend
+      const challengeList = response.data?.challenges || response.data?.data || response.data || []
+      setChallenges(Array.isArray(challengeList) ? challengeList : [])
     } catch (error) {
       console.error('Error fetching challenges:', error)
       toast.error('Không thể tải danh sách thử thách')
@@ -269,7 +270,7 @@ function AdminChallengeManagement() {
 
   const handleConfirmDelete = async () => {
     try {
-      await challengeAPI.deleteChallenge(deleteDialog.challenge._id)
+      await adminChallengeAPI.deleteChallenge(deleteDialog.challenge._id)
       toast.success('✅ Thử thách đã được xóa')
       setChallenges(challenges.filter(c => c._id !== deleteDialog.challenge._id))
       handleCloseDeleteDialog()
@@ -297,19 +298,33 @@ function AdminChallengeManagement() {
 
   if (loading) {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#f0f2f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress />
+      <Box sx={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #f8f9ff 0%, #fff5f0 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <CircularProgress sx={{ color: '#B6349A' }} />
       </Box>
     )
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f0f2f5' }}>
-      <AppBar />
-      
+    <Box sx={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f8f9ff 0%, #fff5f0 100%)',
+      pb: 4
+    }}>
       <Container maxWidth="sm" sx={{ py: 3 }}>
         {/* POST COMPOSER */}
-        <Paper elevation={1} sx={{ mb: 3, borderRadius: 2 }}>
+        <Paper elevation={1} sx={{
+          mb: 3,
+          borderRadius: 2.5,
+          border: '1px solid rgba(182, 52, 154, 0.1)',
+          boxShadow: '0 2px 8px rgba(182, 52, 154, 0.08)',
+          overflow: 'hidden'
+        }}>
           <CardContent sx={{ p: 2 }}>
             {/* Header with Avatar */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -334,7 +349,20 @@ function AdminChallengeManagement() {
               onChange={handleComposerChange}
               multiline
               rows={2}
-              sx={{ mb: 2 }}
+              sx={{
+                mb: 2,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 1.5,
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#B6349A'
+                  }
+                },
+                '& .MuiOutlinedInput-root.Mui-focused': {
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#B6349A'
+                  }
+                }
+              }}
               disabled={isSubmitting}
             />
 
@@ -347,7 +375,20 @@ function AdminChallengeManagement() {
               onChange={handleComposerChange}
               multiline
               rows={3}
-              sx={{ mb: 2 }}
+              sx={{
+                mb: 2,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 1.5,
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#B6349A'
+                  }
+                },
+                '& .MuiOutlinedInput-root.Mui-focused': {
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#B6349A'
+                  }
+                }
+              }}
               disabled={isSubmitting}
             />
 
@@ -435,6 +476,16 @@ function AdminChallengeManagement() {
                 variant="outlined"
                 size="small"
                 disabled={isSubmitting}
+                sx={{
+                  borderColor: '#B6349A',
+                  color: '#B6349A',
+                  fontWeight: 600,
+                  '&:hover': {
+                    borderColor: '#FF6B7A',
+                    color: '#FF6B7A',
+                    backgroundColor: 'rgba(255, 107, 122, 0.05)'
+                  }
+                }}
               >
                 Thêm ảnh
                 <input
@@ -450,7 +501,20 @@ function AdminChallengeManagement() {
                 startIcon={<SendIcon />}
                 onClick={handlePostChallenge}
                 disabled={isSubmitting || !composerData.title.trim() || !composerData.description.trim()}
-                sx={{ flex: 1, ml: 1 }}
+                sx={{
+                  flex: 1,
+                  ml: 1,
+                  background: 'linear-gradient(135deg, #d946a6 0%, #c71585 100%)',
+                  color: 'white',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  borderRadius: 1.5,
+                  '&:hover': {
+                    transform: 'scale(1.02)',
+                    boxShadow: '0 4px 20px rgba(217, 70, 166, 0.3)'
+                  },
+                  transition: 'all 0.3s ease'
+                }}
               >
                 {isSubmitting ? 'Đang tạo...' : 'Đăng thử thách'}
               </Button>
@@ -467,11 +531,26 @@ function AdminChallengeManagement() {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon />
+                <SearchIcon sx={{ color: '#B6349A' }} />
               </InputAdornment>
             )
           }}
-          sx={{ mb: 3, bgcolor: 'white' }}
+          sx={{
+            mb: 3,
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 1.5,
+              backgroundColor: 'white',
+              border: '1px solid #e0e0e0',
+              '&:hover': {
+                border: '1px solid #B6349A',
+                boxShadow: '0 2px 8px rgba(182, 52, 154, 0.08)'
+              },
+              '&.Mui-focused': {
+                border: '2px solid #B6349A',
+                boxShadow: '0 4px 16px rgba(182, 52, 154, 0.12)'
+              }
+            }
+          }}
         />
 
         {/* CHALLENGES LIST */}
@@ -482,25 +561,79 @@ function AdminChallengeManagement() {
         ) : (
           <Stack spacing={2}>
             {filteredChallenges.map((challenge) => (
-              <Card key={challenge._id} elevation={1}>
+              <Card key={challenge._id} sx={{
+                borderRadius: 2.5,
+                border: '1px solid #e0e0e0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                '&:hover': {
+                  boxShadow: '0 4px 20px rgba(182, 52, 154, 0.15)',
+                  borderColor: '#B6349A',
+                  transform: 'translateY(-2px)'
+                },
+                transition: 'all 0.3s ease',
+                overflow: 'hidden'
+              }}>
                 <CardHeader
-                  avatar={<Avatar src={challenge.creatorAvatar} alt={challenge.creatorDisplayName} />}
-                  title={challenge.creatorDisplayName}
-                  subheader={new Date(challenge.createdAt).toLocaleString('vi-VN')}
+                  avatar={
+                    <Avatar
+                      src={challenge.creatorAvatar}
+                      alt={challenge.creatorDisplayName}
+                      sx={{ width: 48, height: 48, border: '2px solid #B6349A' }}
+                    />
+                  }
+                  title={
+                    <Typography sx={{
+                      fontWeight: 700,
+                      color: '#222',
+                      fontSize: '0.95rem'
+                    }}>
+                      {challenge.creatorDisplayName}
+                    </Typography>
+                  }
+                  subheader={
+                    <Typography sx={{
+                      fontSize: '0.75rem',
+                      color: '#999'
+                    }}>
+                      {new Date(challenge.createdAt).toLocaleString('vi-VN')}
+                    </Typography>
+                  }
                   action={
                     <IconButton
                       size="small"
                       onClick={(e) => handleOpenMoreMenu(e, challenge)}
+                      sx={{
+                        color: '#B6349A',
+                        '&:hover': {
+                          backgroundColor: 'rgba(182, 52, 154, 0.1)'
+                        }
+                      }}
                     >
                       <MoreVertIcon />
                     </IconButton>
                   }
+                  sx={{
+                    background: 'linear-gradient(135deg, rgba(182, 52, 154, 0.05) 0%, rgba(255, 107, 122, 0.05) 100%)',
+                    borderBottom: '1px solid rgba(182, 52, 154, 0.1)'
+                  }}
                 />
                 <CardContent sx={{ pb: 1 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  <Typography variant="h6" sx={{
+                    fontWeight: 700,
+                    mb: 1,
+                    color: '#222',
+                    '&:hover': {
+                      color: '#FF6B7A'
+                    },
+                    transition: 'color 0.2s ease'
+                  }}>
                     {challenge.title}
                   </Typography>
-                  <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{
+                    color: '#666',
+                    mb: 2,
+                    lineHeight: 1.5
+                  }}>
                     {challenge.description}
                   </Typography>
                   {challenge.image && (
@@ -511,9 +644,10 @@ function AdminChallengeManagement() {
                       sx={{
                         width: '100%',
                         maxHeight: 300,
-                        borderRadius: 1,
+                        borderRadius: 1.5,
                         objectFit: 'cover',
-                        mb: 2
+                        mb: 2,
+                        border: '1px solid #e0e0e0'
                       }}
                     />
                   )}
@@ -521,13 +655,22 @@ function AdminChallengeManagement() {
                     <Chip
                       label={challenge.type}
                       size="small"
-                      color="primary"
-                      variant="outlined"
+                      sx={{
+                        background: 'linear-gradient(135deg, #FFB366, #FFA84D)',
+                        color: 'white',
+                        fontWeight: 600,
+                        fontSize: '0.8rem'
+                      }}
                     />
                     <Chip
                       label={`⏱️ ${challenge.durationDays} ngày`}
                       size="small"
-                      variant="outlined"
+                      sx={{
+                        backgroundColor: 'rgba(76, 175, 80, 0.15)',
+                        color: '#4CAF50',
+                        fontWeight: 600,
+                        fontSize: '0.8rem'
+                      }}
                     />
                     <Chip
                       label={`👥 ${challenge.participantCount || 0}`}

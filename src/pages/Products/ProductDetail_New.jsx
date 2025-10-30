@@ -293,53 +293,6 @@ const ProductDetail = () => {
               {product.description}
             </Typography>
 
-            {/* Eco Metrics */}
-            {product.ecoScore && (
-              <Paper sx={{ p: 2, mb: 3, backgroundColor: '#f0f7f0' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                  <Nature sx={{ color: '#4caf50' }} />
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    Chỉ số sinh thái
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="body2" color="textSecondary">
-                      Điểm xanh: {product.ecoScore}/100
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      width: 60,
-                      height: 60,
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      background: `conic-gradient(#4caf50 ${product.ecoScore}%, #e0e0e0 0%)`,
-                      position: 'relative'
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: '50%',
-                        backgroundColor: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 700,
-                        color: '#4caf50'
-                      }}
-                    >
-                      {product.ecoScore}
-                    </Box>
-                  </Box>
-                </Box>
-              </Paper>
-            )}
-
             {/* Price Section */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>

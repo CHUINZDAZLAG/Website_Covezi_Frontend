@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Container,
   Box,
@@ -24,7 +24,6 @@ import {
   Alert,
   CircularProgress,
   Stack,
-  InputAdornment,
   Select,
   MenuItem,
   FormControl,
@@ -35,18 +34,23 @@ import {
   Add,
   Edit,
   Delete,
-  Search,
   Close,
   Block,
-  CheckCircle
+  BlockOutlined,
+  CheckCircle,
+  People,
+  PersonAdd,
+  CheckCircleOutline,
+  HighlightOff
 } from '@mui/icons-material'
-import authorizedAxiosInstance from '~/utils/authorizeAxios'
-import { API_ROOT } from '~/utils/constants'
+import { adminUserManagementAPI } from '~/apis/index'
 import { toast } from 'react-toastify'
 
 const AdminAccountManagement = () => {
   const [accounts, setAccounts] = useState([])
+  const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [statsLoading, setStatsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [openDialog, setOpenDialog] = useState(false)
   const [editingAccount, setEditingAccount] = useState(null)
@@ -60,19 +64,35 @@ const AdminAccountManagement = () => {
 
   useEffect(() => {
     fetchAccounts()
+    fetchStats()
   }, [searchTerm])
 
   const fetchAccounts = async () => {
     try {
       setLoading(true)
-      const queryString = searchTerm ? `?search=${searchTerm}` : ''
-      const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/users${queryString}`)
-      setAccounts(Array.isArray(response.data.data) ? response.data.data : [])
+      const response = await adminUserManagementAPI.getAllUsers({
+        search: searchTerm,
+        page: 1,
+        limit: 100
+      })
+      setAccounts(response.data || [])
     } catch (error) {
       console.error('Error fetching accounts:', error)
       toast.error('Không thể tải danh sách tài khoản')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchStats = async () => {
+    try {
+      setStatsLoading(true)
+      const response = await adminUserManagementAPI.getUserStats()
+      setStats(response.data)
+    } catch (error) {
+      console.error('Error fetching stats:', error)
+    } finally {
+      setStatsLoading(false)
     }
   }
 
@@ -119,53 +139,26 @@ const AdminAccountManagement = () => {
     }))
   }
 
-  const handleSaveAccount = async () => {
-    if (!formData.email || !formData.username) {
-      toast.error('Vui lòng nhập email và username')
-      return
-    }
-
-    try {
-      if (editingAccount) {
-        await authorizedAxiosInstance.put(
-          `${API_ROOT}/v1/users/${editingAccount._id}`,
-          formData
-        )
-        toast.success('Tài khoản được cập nhật thành công!')
-      } else {
-        await authorizedAxiosInstance.post(`${API_ROOT}/v1/users`, formData)
-        toast.success('Tài khoản được tạo thành công!')
-      }
-
-      await fetchAccounts()
-      handleCloseDialog()
-    } catch (error) {
-      console.error('Error saving account:', error)
-      toast.error(error.response?.data?.message || 'Không thể lưu tài khoản')
-    }
-  }
-
   const handleDeleteAccount = async (accountId) => {
     if (!window.confirm('Bạn chắc chắn muốn xóa tài khoản này?')) return
 
     try {
-      await authorizedAxiosInstance.delete(`${API_ROOT}/v1/users/${accountId}`)
+      await adminUserManagementAPI.deleteUser(accountId)
       await fetchAccounts()
-      toast.success('Tài khoản đã được xóa')
+      await fetchStats()
+      toast.success('✅ Tài khoản đã được xóa')
     } catch (error) {
       console.error('Error deleting account:', error)
-      toast.error('Không thể xóa tài khoản')
+      toast.error(error.response?.data?.message || 'Không thể xóa tài khoản')
     }
   }
 
   const handleToggleActive = async (account) => {
     try {
-      await authorizedAxiosInstance.put(
-        `${API_ROOT}/v1/users/${account._id}`,
-        { isActive: !account.isActive }
-      )
+      await adminUserManagementAPI.updateUserStatus(account._id, !account.isActive)
       await fetchAccounts()
-      toast.success(`Tài khoản đã được ${!account.isActive ? 'kích hoạt' : 'vô hiệu hóa'}`)
+      await fetchStats()
+      toast.success(`✅ Tài khoản đã được ${!account.isActive ? 'kích hoạt' : 'vô hiệu hóa'}`)
     } catch (error) {
       console.error('Error updating account status:', error)
       toast.error('Không thể cập nhật trạng thái tài khoản')
@@ -173,37 +166,190 @@ const AdminAccountManagement = () => {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Box sx={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f8f9ff 0%, #fff5f0 100%)',
+      pb: 4
+    }}>
+      <Container maxWidth="lg" sx={{ py: 3 }}>
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-            👥 Quản lý Tài khoản
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={() => handleOpenDialog()}
-          >
-            Thêm tài khoản
-          </Button>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 900, color: '#B6349A', mb: 0.5 }}>
+              👥 Quản lý Tài khoản
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#999', fontWeight: 500 }}>
+              Quản lý toàn bộ tài khoản người dùng
+            </Typography>
+          </Box>
         </Box>
 
-        {/* Search */}
-        <TextField
-          fullWidth
-          placeholder="Tìm kiếm tài khoản (email, username, display name)..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search />
-              </InputAdornment>
-            )
-          }}
-          sx={{ mb: 3 }}
-        />
+        {/* Statistics Cards */}
+        {statsLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <CircularProgress sx={{ color: '#B6349A' }} />
+          </Box>
+        ) : stats ? (
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{
+                background: 'linear-gradient(135deg, #FF6B7A 0%, #FF8C3C 100%)',
+                color: 'white',
+                borderRadius: 2,
+                boxShadow: '0 4px 20px rgba(255, 107, 122, 0.2)',
+                border: 'none',
+                textAlign: 'center'
+              }}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                    <People sx={{ fontSize: 40, opacity: 0.9 }} />
+                  </Box>
+                  <Typography sx={{ opacity: 0.95, fontWeight: 500 }}>
+                    Tổng tài khoản
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, mt: 1 }}>
+                    {stats.summary?.totalUsers || 0}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{
+                background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
+                color: 'white',
+                borderRadius: 2,
+                boxShadow: '0 4px 20px rgba(76, 175, 80, 0.2)',
+                border: 'none',
+                textAlign: 'center'
+              }}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                    <PersonAdd sx={{ fontSize: 40, opacity: 0.9 }} />
+                  </Box>
+                  <Typography sx={{ opacity: 0.95, fontWeight: 500 }}>
+                    Đăng ký
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, mt: 1 }}>
+                    {stats.summary?.totalUsers || 0}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{
+                background: 'linear-gradient(135deg, #32778E 0%, #4d99b3 100%)',
+                color: 'white',
+                borderRadius: 2,
+                boxShadow: '0 4px 20px rgba(50, 119, 142, 0.2)',
+                border: 'none',
+                textAlign: 'center'
+              }}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                    <CheckCircleOutline sx={{ fontSize: 40, opacity: 0.9 }} />
+                  </Box>
+                  <Typography sx={{ opacity: 0.95, fontWeight: 500 }}>
+                    Đang hoạt động
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, mt: 1 }}>
+                    {stats.summary?.activeUsers || 0}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{
+                background: 'linear-gradient(135deg, #FF6B6B 0%, #FF4444 100%)',
+                color: 'white',
+                borderRadius: 2,
+                boxShadow: '0 4px 20px rgba(255, 107, 107, 0.2)',
+                border: 'none',
+                textAlign: 'center'
+              }}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                    <BlockOutlined sx={{ fontSize: 40, opacity: 0.9 }} />
+                  </Box>
+                  <Typography sx={{ opacity: 0.95, fontWeight: 500 }}>
+                    Bị khóa
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, mt: 1 }}>
+                    {stats.summary?.lockedUsers || 0}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        ) : null}
+
+        {/* Filters Section */}
+        <Card sx={{
+          mb: 4,
+          borderRadius: 2,
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          border: '1px solid #f0f0f0'
+        }}>
+          <CardContent>
+            <Grid container spacing={2} sx={{ alignItems: 'flex-end' }}>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  fullWidth
+                  placeholder="🔍 Tìm kiếm tài khoản..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  size="small"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 1.5,
+                      backgroundColor: '#f9f9f9',
+                      '&:hover': { backgroundColor: '#f5f5f5' },
+                      '&.Mui-focused': {
+                        backgroundColor: 'white',
+                        '& fieldset': { borderColor: '#B6349A', borderWidth: 2 }
+                      }
+                    }
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  sx={{
+                    borderRadius: 1.5,
+                    background: 'linear-gradient(135deg, #B6349A 0%, #9B2B7A 100%)',
+                    fontWeight: 600,
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #9B2B7A 0%, #7A217C 100%)'
+                    }
+                  }}
+                >
+                  ➕ Thêm tài khoản mới
+                </Button>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  sx={{
+                    borderRadius: 1.5,
+                    borderColor: '#ddd',
+                    color: '#333',
+                    fontWeight: 600,
+                    '&:hover': { borderColor: '#999', backgroundColor: '#f9f9f9' }
+                  }}
+                >
+                  ↺ Làm mới
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
 
         {/* Accounts Table */}
         {loading ? (
@@ -248,13 +394,6 @@ const AdminAccountManagement = () => {
                     <TableCell align="center">
                       <IconButton
                         size="small"
-                        onClick={() => handleOpenDialog(account)}
-                        title="Chỉnh sửa"
-                      >
-                        <Edit fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        size="small"
                         onClick={() => handleToggleActive(account)}
                         title={account.isActive ? 'Vô hiệu hóa' : 'Kích hoạt'}
                       >
@@ -276,58 +415,6 @@ const AdminAccountManagement = () => {
           </TableContainer>
         )}
       </Container>
-
-      {/* Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {editingAccount ? 'Chỉnh sửa tài khoản' : 'Tạo tài khoản mới'}
-        </DialogTitle>
-        <DialogContent sx={{ pt: 2 }}>
-          <Stack spacing={2}>
-            <TextField
-              label="Email"
-              fullWidth
-              value={formData.email}
-              onChange={handleFormChange}
-              name="email"
-              type="email"
-              disabled={!!editingAccount}
-            />
-            <TextField
-              label="Username"
-              fullWidth
-              value={formData.username}
-              onChange={handleFormChange}
-              name="username"
-              disabled={!!editingAccount}
-            />
-            <TextField
-              label="Tên hiển thị"
-              fullWidth
-              value={formData.displayName}
-              onChange={handleFormChange}
-              name="displayName"
-            />
-            <FormControl fullWidth>
-              <FormLabel>Role</FormLabel>
-              <Select
-                name="role"
-                value={formData.role}
-                onChange={handleFormChange}
-              >
-                <MenuItem value="client">Khách hàng</MenuItem>
-                <MenuItem value="admin">Admin</MenuItem>
-              </Select>
-            </FormControl>
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Hủy</Button>
-          <Button onClick={handleSaveAccount} variant="contained">
-            {editingAccount ? 'Cập nhật' : 'Tạo'}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   )
 }

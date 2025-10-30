@@ -6,7 +6,6 @@ import {
   Typography,
   Button,
   IconButton,
-  Badge,
   Avatar,
   Menu,
   MenuItem,
@@ -27,12 +26,10 @@ import {
   ShoppingBag,
   EmojiEvents,
   Park,
-  ShoppingCart,
   Search,
   Menu as MenuIcon,
   Logout,
   Settings,
-  Notifications,
   Favorite,
   LocalShipping,
   Close,
@@ -41,8 +38,8 @@ import {
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentUser, logoutUserAPI } from '~/redux/user/userSlice'
-import ModeSelect from '~/components/ModeSelect/ModeSelect'
-import GamificationNotifications from './Notifications/GamificationNotifications'
+import ChallengeNotifications from './Notifications/ChallengeNotifications'
+import CoveziLogo from '~/assets/Covezi_Logo.png'
 
 const navItems = [
   { label: 'Trang chủ', path: '/', icon: <Home /> },
@@ -118,7 +115,7 @@ function AppBar() {
             <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
               <Box
                 component="img"
-                src="/src/assets/Covezi_Logo.png"
+                src={CoveziLogo}
                 alt="Covezi Logo"
                 sx={{
                   height: 40,
@@ -163,31 +160,13 @@ function AppBar() {
             )}
           </Box>
 
-          {/* Right Section - Cart, User */}
+          {/* Right Section - User */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, md: 2 } }}>
-            {/* Mode Select */}
-            <ModeSelect />
-
-            {/* Cart */}
-            {currentUser && (
-              <IconButton
-                sx={{
-                  color: '#063B71',
-                  bgcolor: isActive('/cart') ? 'rgba(6, 59, 113, 0.1)' : 'transparent',
-                  '&:hover': { bgcolor: 'rgba(6, 59, 113, 0.08)' }
-                }}
-                component={Link}
-                to="/cart"
-              >
-                <Badge badgeContent={0} color="error">
-                  <ShoppingCart />
-                </Badge>
-              </IconButton>
-            )}
-
             {/* Notifications */}
             {currentUser && (
-              <GamificationNotifications />
+              <>
+                <ChallengeNotifications />
+              </>
             )}
 
             {/* User Profile / Login */}
@@ -319,7 +298,7 @@ function AppBar() {
         <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box
             component="img"
-            src="/src/assets/Covezi_Logo.png"
+            src={CoveziLogo}
             alt="Covezi Logo"
             sx={{
               height: 36,

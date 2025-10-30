@@ -8,12 +8,10 @@ import OrderDetail from '~/pages/Orders/OrderDetail'
 import Challenges from '~/pages/Challenges/Challenges'
 import ChallengeDetail from '~/pages/Challenges/ChallengeDetail'
 import CreateChallenge from '~/pages/Challenges/CreateChallenge'
+import EditChallenge from '~/pages/Challenges/EditChallenge'
 import Garden from '~/pages/Garden/Garden'
 import Leaderboard from '~/pages/Leaderboard/Leaderboard'
-import Cart from '~/pages/Cart/Cart'
-import Checkout from '~/pages/Checkout/Checkout'
-import PaymentReturn from '~/pages/Payment/PaymentReturn'
-import PaymentFailed from '~/pages/Payment/PaymentFailed'
+import MyVouchers from '~/pages/Voucher/MyVouchers'
 import NotFound from '~/pages/404/NotFound'
 import { Route, Routes, Navigate, Outlet } from 'react-router-dom'
 import Auth from '~/pages/Auth/Auth'
@@ -23,6 +21,9 @@ import { selectCurrentUser } from '~/redux/user/userSlice'
 import Settings from '~/pages/Settings/Settings'
 import Boards from '~/pages/Boards'
 import Board from '~/pages/Boards/_id'
+import { useEffect } from 'react'
+import { gamificationAPI } from '~/apis'
+import { shouldClaimDailyLogin, recordDailyLoginClaim } from '~/utils/tokenUtils'
 
 /**
  * Protected route component using React Router's Outlet
@@ -48,6 +49,30 @@ const AdminProtectedRoute = ({ user }) => {
 function App() {
   const currentUser = useSelector(selectCurrentUser)
 
+  // Automatically claim daily login reward if 24 hours have passed
+  useEffect(() => {
+    const claimDailyLoginIfEligible = async () => {
+      // Only process if user is logged in
+      if (!currentUser) return
+
+      // Check if 24 hours have passed since last login
+      if (shouldClaimDailyLogin()) {
+        try {
+          const response = await gamificationAPI.claimDailyLoginReward()
+          if (response?.data) {
+            // Record this claim
+            recordDailyLoginClaim()
+          }
+        } catch (error) {
+          // Silent fail - daily login might already be claimed or other reasons
+          console.debug('Daily login claim result:', error.response?.data?.message || 'Already claimed today')
+        }
+      }
+    }
+
+    claimDailyLoginIfEligible()
+  }, [currentUser])
+
   return (
     <Routes>
       {/* Public Routes */}
@@ -56,6 +81,7 @@ function App() {
       <Route path='/products/:id' element={<ProductDetailReal />} />
       <Route path='/challenges' element={<Challenges />} />
       <Route path='/challenges/create' element={<CreateChallenge />} />
+      <Route path='/challenges/edit/:id' element={<EditChallenge />} />
       <Route path='/challenges/:id' element={<ChallengeDetail />} />
 
       {/* Authentication routes */}
@@ -63,18 +89,13 @@ function App() {
       <Route path='/register' element={<Auth />} />
       <Route path='/account/verification' element={<AccountVerification />} />
 
-      {/* Payment routes */}
-      <Route path='/payment/success' element={<PaymentReturn />} />
-      <Route path='/payment/failed' element={<PaymentFailed />} />
-
       {/* Protected Routes - require authentication */}
       <Route element={<ProtectedRoute user={currentUser}/>}>
         {/* User dashboard */}
-        <Route path='/cart' element={<Cart />} />
-        <Route path='/checkout' element={<Checkout />} />
         <Route path='/orders' element={<Orders />} />
         <Route path='/orders/:id' element={<OrderDetail />} />
         <Route path='/garden' element={<Garden />} />
+        <Route path='/vouchers' element={<MyVouchers />} />
         <Route path='/leaderboard' element={<Leaderboard />} />
         
         {/* User settings */}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
 import {
   Container,
   Box,
@@ -33,21 +34,20 @@ import {
   Image as ImageIcon,
   ChatBubbleOutline,
   Share as ShareIcon,
-  ThumbUp,
-  ThumbUpOutlined,
   VideoCall,
   SentimentSatisfiedAlt,
   Send as SendIcon
 } from '@mui/icons-material'
 import { toast } from 'react-toastify'
-import { challengeAPI } from '~/apis'
-import { useSelector } from 'react-redux'
+import { challengeAPI, gamificationAPI } from '~/apis'
+import { setGarden } from '~/redux/gamification/gamificationSlice'
 import { formatDistanceToNow } from 'date-fns'
 import AppBar from '~/components/AppBar/AppBar'
 
 function ChallengeDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const user = useSelector(state => state.user.currentUser)
   const fileInputRef = useRef(null)
 
@@ -62,6 +62,8 @@ function ChallengeDetail() {
   const [anchorEl, setAnchorEl] = useState(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [commentToDelete, setCommentToDelete] = useState(null)
+  const [deleteChallengeDialogOpen, setDeleteChallengeDialogOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchChallengeDetails()
@@ -70,7 +72,7 @@ function ChallengeDetail() {
   const fetchChallengeDetails = async () => {
     try {
       setLoading(true)
-      const response = await challengeAPI.getChallengeDetail(id, `sortBy=${sortBy}&limit=20`)
+      const response = await challengeAPI.getDetails(id, `sortBy=${sortBy}&limit=20`)
       if (response?.data) {
         setChallenge(response.data)
       }
@@ -162,11 +164,23 @@ function ChallengeDetail() {
       const response = await challengeAPI.addProofComment(id, formData)
       
       if (response?.data) {
-        toast.success(response.message || 'Proof submitted! +30 points')
+        const { pointsEarned } = response.data
+        
+        // Show success message with earned points
+        toast.success(`Proof submitted! +${pointsEarned} XP`)
+        
         setProofText('')
         setProofImage(null)
         setVideoUrl('')
         setPreviewUrl(null)
+        
+        // Fetch updated garden data and update Redux store
+        const gardenResponse = await gamificationAPI.getUserGarden()
+        if (gardenResponse?.data) {
+          // Update Redux store with latest garden data
+          dispatch(setGarden(gardenResponse.data))
+        }
+        
         fetchChallengeDetails()
       }
     } catch (error) {
@@ -223,6 +237,21 @@ function ChallengeDetail() {
     } catch (error) {
       console.error('Error deleting comment:', error)
       toast.error('Failed to delete comment')
+    }
+  }
+
+  const handleDeleteChallenge = async () => {
+    try {
+      setDeleting(true)
+      await challengeAPI.deleteChallenge(id)
+      toast.success('Challenge deleted successfully')
+      setDeleteChallengeDialogOpen(false)
+      navigate('/challenges')
+    } catch (error) {
+      console.error('Error deleting challenge:', error)
+      toast.error(error.response?.data?.message || 'Failed to delete challenge')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -561,6 +590,7 @@ function ChallengeDetail() {
     }}>
       <AppBar />
       <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+        
         {/* Challenge Header Card with Gradient Border */}
         <Box sx={{ mb: 3 }}>
           <Card
@@ -732,6 +762,7 @@ function ChallengeDetail() {
                   fontWeight: 600,
                   py: 1.2,
                   borderRadius: 2,
+                  mb: 1.5,
                   '&:hover': {
                     background: 'linear-gradient(135deg, #FF6B7A, #FF5566)',
                     color: '#FFFFFF',
@@ -741,6 +772,8 @@ function ChallengeDetail() {
               >
                 {challenge.isLiked ? '❤️ Liked' : '🤍 Like'}
               </Button>
+
+
             </CardContent>
           </Card>
         </Box>
@@ -979,10 +1012,16 @@ function ChallengeDetail() {
           open={Boolean(anchorEl)}
           onClose={() => setAnchorEl(null)}
         >
-          <MenuItem onClick={() => navigate(`/challenges/edit/${id}`)}>
+          <MenuItem onClick={() => {
+            navigate(`/challenges/edit/${id}`)
+            setAnchorEl(null)
+          }}>
             <Edit fontSize="small" sx={{ mr: 1 }} /> Edit
           </MenuItem>
-          <MenuItem onClick={() => setAnchorEl(null)}>
+          <MenuItem onClick={() => {
+            setDeleteChallengeDialogOpen(true)
+            setAnchorEl(null)
+          }}>
             <Delete fontSize="small" sx={{ mr: 1, color: '#FF6B7A' }} /> Delete
           </MenuItem>
         </Menu>
@@ -995,6 +1034,23 @@ function ChallengeDetail() {
           <DialogActions>
             <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleDeleteComment} color="error">Delete</Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={deleteChallengeDialogOpen} onClose={() => setDeleteChallengeDialogOpen(false)}>
+          <DialogTitle>Delete Challenge?</DialogTitle>
+          <DialogContent>
+            <Typography>Are you sure you want to delete this challenge? This action cannot be undone.</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteChallengeDialogOpen(false)}>Cancel</Button>
+            <Button 
+              onClick={handleDeleteChallenge} 
+              color="error"
+              disabled={deleting}
+            >
+              {deleting ? 'Deleting...' : 'Delete'}
+            </Button>
           </DialogActions>
         </Dialog>
       </Container>

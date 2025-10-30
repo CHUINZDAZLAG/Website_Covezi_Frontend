@@ -21,16 +21,15 @@ import {
   Rating,
   IconButton,
   Slider,
-  Checkbox,
-  FormControlLabel,
   Divider,
-  Collapse
+  Modal,
+  Drawer,
+  Avatar
 } from '@mui/material'
 import {
   Search,
   FilterList,
   GridView,
-  ViewList,
   Sort,
   ShoppingCart,
   Favorite,
@@ -38,60 +37,56 @@ import {
   Nature,
   Star,
   LocalOffer,
-  ExpandMore,
-  ExpandLess
+  Close,
+  TrendingUp,
+  NewReleases
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { productAPI } from '~/apis'
 import AppBar from '~/components/AppBar/AppBar'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
+import CoverImage from '~/assets/Cover_Covezi.png'
 
 const Products = () => {
   const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [category, setCategory] = useState('')
+  const [category, setCategory] = useState('Tất cả')
   const [sortBy, setSortBy] = useState('newest')
-  const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
   const [priceRange, setPriceRange] = useState([0, 1000000])
-  const [ecoFilter, setEcoFilter] = useState(false)
-  const [onSaleFilter, setOnSaleFilter] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [showFilters, setShowFilters] = useState(false)
   const [favorites, setFavorites] = useState(new Set())
+  const [showFavoritesModal, setShowFavoritesModal] = useState(false)
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false)
 
   const categories = [
     'Tất cả',
-    'Túi và balo',
-    'Đồ dùng gia đình',
-    'Mỹ phẩm tự nhiên',
-    'Thời trang bền vững',
-    'Đồ dùng văn phòng',
-    'Đồ ăn hữu cơ'
+    'Màu thiên nhiên',
+    'Bộ đồ chơi màu',
+    'Bộ sáng tạo nghệ thuật với màu',
+    'Combo sản phẩm màu',
+    'Other'
   ]
 
   const sortOptions = [
-    { value: 'newest', label: 'Mới nhất' },
-    { value: 'oldest', label: 'Cũ nhất' },
-    { value: 'price-asc', label: 'Giá thấp đến cao' },
-    { value: 'price-desc', label: 'Giá cao đến thấp' },
-    { value: 'popular', label: 'Phổ biến nhất' },
-    { value: 'rating', label: 'Đánh giá cao nhất' }
+    { value: 'newest', label: 'Mới nhất', icon: <NewReleases sx={{ fontSize: 16, mr: 0.5 }} /> },
+    { value: 'price-asc', label: 'Giá thấp đến cao', icon: <NewReleases sx={{ fontSize: 16, mr: 0.5 }} /> },
+    { value: 'price-desc', label: 'Giá cao đến thấp', icon: <TrendingUp sx={{ fontSize: 16, mr: 0.5 }} /> },
+    { value: 'popular', label: 'Phổ biến nhất', icon: <TrendingUp sx={{ fontSize: 16, mr: 0.5 }} /> }
   ]
 
   const fetchProducts = async () => {
     try {
       setLoading(true)
 
-      // Fetch real products from API
       const queryParams = new URLSearchParams()
       if (searchQuery) queryParams.append('search', searchQuery)
-      if (category) queryParams.append('category', category)
+      if (category && category !== 'Tất cả') queryParams.append('category', category)
       queryParams.append('page', currentPage)
       queryParams.append('limit', 12)
-      if (sortBy) queryParams.append('sort', sortBy)
+      queryParams.append('sort', sortBy)
 
       const response = await productAPI.getProducts(queryParams.toString())
       setProducts(response.data?.products || response.products || [])
@@ -106,7 +101,7 @@ const Products = () => {
 
   useEffect(() => {
     fetchProducts()
-  }, [searchQuery, category, sortBy, currentPage, ecoFilter, onSaleFilter, priceRange])
+  }, [searchQuery, category, sortBy, currentPage, priceRange])
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value)
@@ -118,13 +113,8 @@ const Products = () => {
     setCurrentPage(1)
   }
 
-  const handleSortChange = (e) => {
-    setSortBy(e.target.value)
-    setCurrentPage(1)
-  }
-
-  const handlePriceRangeChange = (event, newValue) => {
-    setPriceRange(newValue)
+  const handleSortChange = (value) => {
+    setSortBy(value)
     setCurrentPage(1)
   }
 
@@ -156,307 +146,534 @@ const Products = () => {
       : product.price
   }
 
+  // Gradient colors using brand colors: B6349A, FF8C3C, FF001A
+  const getRandomGradient = () => {
+    const colors = [
+      { light: '#D4A8D0', dark: '#A8399A' },  // Purple - darker
+      { light: '#FFD4A3', dark: '#FF8C00' },  // Orange - darker
+      { light: '#FF99B8', dark: '#E60015' }   // Red - darker
+    ]
+    return colors[Math.floor(Math.random() * colors.length)]
+  }
+
+  const getGradientForIndex = (index) => {
+    const colors = [
+      { light: '#D4A8D0', dark: '#A8399A' },  // Purple - darker
+      { light: '#FFD4A3', dark: '#FF8C00' },  // Orange - darker
+      { light: '#FF99B8', dark: '#E60015' }   // Red - darker
+    ]
+    const color = colors[index % colors.length]
+    return `linear-gradient(135deg, ${color.light} 0%, ${color.dark} 100%)`
+  }
+
+  const ProductCard = ({ product, index }) => {
+    const gradient = getGradientForIndex(index)
+    const finalPrice = getFinalPrice(product)
+
+    return (
+      <Box
+        sx={{
+          background: gradient,
+          padding: '12px',
+          borderRadius: 4,
+          height: '100%'
+        }}
+      >
+        <Card
+          sx={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundColor: '#FFFFFF',
+            border: 'none',
+            borderRadius: 3,
+            overflow: 'hidden',
+            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s',
+            '&:hover': {
+              transform: 'translateY(-8px)',
+              boxShadow: '0 12px 32px rgba(0,0,0,0.15)'
+            },
+            cursor: 'pointer'
+          }}
+          onClick={() => navigate(`/products/${product._id}`)}
+        >
+          {/* Product Image Container */}
+          <Box
+            sx={{
+              position: 'relative',
+              height: 200,
+              overflow: 'hidden',
+              backgroundColor: '#f5f5f5',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <CardMedia
+              component="img"
+              image={product.cover || product.images?.[0] || 'https://placehold.co/300x200?text=Product'}
+              alt={product.name}
+              onError={(e) => {
+                e.target.src = 'https://placehold.co/300x200?text=Product'
+              }}
+              sx={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+                padding: 1
+              }}
+            />
+
+            {/* Discount Badge */}
+            {product.discount > 0 && (
+              <Chip
+                icon={<LocalOffer />}
+                label={`-${product.discount}%`}
+                sx={{
+                  position: 'absolute',
+                  top: 12,
+                  left: 12,
+                  fontWeight: 'bold',
+                  backgroundColor: '#FF6B7A',
+                  color: 'white'
+                }}
+              />
+            )}
+
+          </Box>
+
+          {/* Content Section */}
+          <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', pb: 1.5, pt: 2 }}>
+            {/* Product Name */}
+            <Typography
+              variant="h6"
+              component="h2"
+              sx={{
+                cursor: 'pointer',
+                color: '#222',
+                fontWeight: 700,
+                fontSize: '1rem',
+                lineHeight: 1.3,
+                mb: 1,
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                '&:hover': { color: '#FF6B7A' }
+              }}
+            >
+              {product.name}
+            </Typography>
+
+            {/* Category Chip */}
+            <Chip
+              label={product.category}
+              size="small"
+              sx={{
+                mb: 1.5,
+                width: 'fit-content',
+                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                color: '#4CAF50',
+                fontWeight: 600,
+                fontSize: '0.75rem'
+              }}
+            />
+
+            {/* Product Description */}
+            {product.description && (
+              <Typography
+                variant="body2"
+                sx={{
+                  mb: 1.5,
+                  color: '#666',
+                  fontSize: '0.85rem',
+                  lineHeight: 1.4,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden'
+                }}
+              >
+                {product.description}
+              </Typography>
+            )}
+
+            {/* Price Section */}
+            <Box sx={{ mb: 1.5 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  fontSize: '1.2rem',
+                  background: 'linear-gradient(135deg, #FF6B7A 0%, #B6349A 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  mb: 0.5
+                }}
+              >
+                {formatCurrency(finalPrice)}
+              </Typography>
+              {product.discount > 0 && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    textDecoration: 'line-through',
+                    color: '#999',
+                    fontSize: '0.85rem'
+                  }}
+                >
+                  {formatCurrency(product.price)}
+                </Typography>
+              )}
+            </Box>
+
+
+
+            {/* View Details Button */}
+            <Button
+              variant="contained"
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation()
+                navigate(`/products/${product._id}`)
+              }}
+              fullWidth
+              startIcon={<ShoppingCart sx={{ fontSize: 16 }} />}
+              sx={{
+                mt: 'auto',
+                background: 'linear-gradient(135deg, #d946a6 0%, #c71585 100%)',
+                color: 'white',
+                fontWeight: 600,
+                textTransform: 'none',
+                borderRadius: 1.5,
+                py: 1,
+                fontSize: '0.9rem',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #c71585 0%, #b80570 100%)',
+                  transform: 'scale(1.02)'
+                }
+              }}
+            >
+              Xem chi tiết sản phẩm
+            </Button>
+          </CardContent>
+        </Card>
+      </Box>
+    )
+  }
+
+  const FilterSidebar = () => (
+    <Paper
+      sx={{
+        p: 3,
+        borderRadius: 2,
+        border: '1px solid #e0e0e0',
+        backgroundColor: '#ffffff',
+        height: 'fit-content',
+        position: { xs: 'relative', md: 'sticky' },
+        top: { md: 20 },
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+      }}
+    >
+      {/* Sort Options */}
+      <Typography 
+        variant="subtitle1" 
+        sx={{ 
+          fontWeight: 700, 
+          mb: 2.5, 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 1,
+          color: '#32778E',
+          fontSize: '0.95rem',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px'
+        }}
+      >
+        <Sort sx={{ fontSize: 18, color: '#32778E' }} />
+        Sắp xếp
+      </Typography>
+      <Stack spacing={0.8} sx={{ mb: 3 }}>
+        {sortOptions.map(option => (
+          <Button
+            key={option.value}
+            onClick={() => handleSortChange(option.value)}
+            variant={sortBy === option.value ? 'contained' : 'outlined'}
+            fullWidth
+            startIcon={option.icon}
+            sx={{
+              justifyContent: 'flex-start',
+              textTransform: 'none',
+              fontSize: '0.9rem',
+              fontWeight: sortBy === option.value ? 600 : 500,
+              background: sortBy === option.value ? '#32778E' : 'transparent',
+              color: sortBy === option.value ? 'white' : '#32778E',
+              border: sortBy === option.value ? 'none' : '1.5px solid #32778E',
+              borderRadius: 1.5,
+              transition: 'all 0.2s ease',
+              py: 1,
+              '&:hover': {
+                background: sortBy === option.value ? '#2a5f6f' : 'rgba(50, 119, 142, 0.05)',
+                borderColor: '#32778E'
+              }
+            }}
+          >
+            {option.label}
+          </Button>
+        ))}
+      </Stack>
+
+      <Divider sx={{ my: 2.5 }} />
+
+      {/* Category Filter */}
+      <Typography 
+        variant="subtitle1" 
+        sx={{ 
+          fontWeight: 700, 
+          mb: 2,
+          color: '#32778E',
+          fontSize: '0.95rem',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px'
+        }}
+      >
+        Danh mục
+      </Typography>
+      <FormControl fullWidth size="small" sx={{ mb: 3 }}>
+        <Select
+          value={category}
+          onChange={handleCategoryChange}
+          sx={{
+            borderRadius: 1.5,
+            backgroundColor: '#ffffff',
+            border: '1.5px solid #32778E',
+            color: '#32778E',
+            fontWeight: 500,
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#32778E'
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#32778E',
+              borderWidth: '1.5px'
+            },
+            '& .MuiSvgIcon-root': {
+              color: '#32778E'
+            }
+          }}
+        >
+          {categories.map(cat => (
+            <MenuItem key={cat} value={cat} sx={{ color: '#32778E' }}>
+              {cat}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <Divider sx={{ my: 2.5 }} />
+
+      {/* Price Range */}
+      <Typography 
+        variant="subtitle1" 
+        sx={{ 
+          fontWeight: 700, 
+          mb: 2,
+          color: '#32778E',
+          fontSize: '0.95rem',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px'
+        }}
+      >
+        Khoảng giá
+      </Typography>
+      <Typography 
+        variant="body2" 
+        sx={{ 
+          mb: 2, 
+          color: '#32778E',
+          fontWeight: 600,
+          fontSize: '0.85rem'
+        }}
+      >
+        {formatCurrency(priceRange[0])} - {formatCurrency(priceRange[1])}
+      </Typography>
+      <Slider
+        value={priceRange}
+        onChange={(e, newValue) => setPriceRange(newValue)}
+        min={0}
+        max={1000000}
+        step={50000}
+        sx={{
+          color: '#32778E',
+          '& .MuiSlider-thumb': {
+            backgroundColor: '#32778E',
+            border: '2px solid white',
+            boxShadow: '0 2px 4px rgba(50, 119, 142, 0.3)'
+          },
+          '& .MuiSlider-track': {
+            backgroundColor: '#32778E'
+          },
+          '& .MuiSlider-rail': {
+            backgroundColor: '#d0d0d0'
+          }
+        }}
+      />
+    </Paper>
+  )
+
   if (loading) {
     return <PageLoadingSpinner />
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: 'transparent' }}>
+    <Box 
+      sx={{ 
+        minHeight: '100vh',
+        backgroundColor: 'transparent'
+      }}
+    >
       <AppBar />
-      
-      {/* Header - Search Bar with Background Image */}
-      <Box
-        sx={{
-          backgroundImage: 'url(/src/assets/Covezi_Product_Cover.png), linear-gradient(135deg, rgba(76, 175, 80, 0.65) 0%, rgba(46, 125, 50, 0.65) 100%)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
-          py: { xs: 4, md: 5 },
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        <Container maxWidth="sm">
-          {/* Search Bar Only */}
-          <TextField
-            fullWidth
-            placeholder="Tìm kiếm sản phẩm của Covezi"
-            value={searchQuery}
-            onChange={handleSearch}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 4,
-                backgroundColor: 'white',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.15)'
-              }
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search sx={{ color: '#999', mr: 1 }} />
-                </InputAdornment>
-              )
-            }}
-          />
+
+      {/* Header Section */}
+      <Box sx={{ backgroundColor: 'transparent', minHeight: 'auto' }}>
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <Box sx={{ mb: 4 }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  color: '#32778E',
+                  fontWeight: 'bold'
+                }}
+              >
+                Covezi's Product
+              </Typography>
+            </Stack>
+
+            {/* Search Bar */}
+            <TextField
+              fullWidth
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={handleSearch}
+              sx={{
+                backgroundColor: '#FFFFFF',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#32778E'
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#FF8C3C'
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#32778E'
+                  }
+                }
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search sx={{ color: '#32778E' }} />
+                  </InputAdornment>
+                )
+              }}
+            />
+          </Box>
         </Container>
       </Box>
 
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        {/* Products Count */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            ✨ Tìm thấy <strong style={{ color: '#4caf50' }}>{products.length}</strong> sản phẩm
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {category ? `Danh mục: ${category}` : 'Tất cả danh mục'}
-          </Typography>
-        </Box>
-
-        {/* Products Grid/List */}
-        <Grid container spacing={3}>
-          {products.map((product, index) => {
-            const finalPrice = getFinalPrice(product)
-            
-            // Gradient colors - pastel colors like the design
-            const gradients = [
-              'linear-gradient(135deg, #E8B4D8 0%, #D99ECB 100%)',  // Light Purple/Pink
-              'linear-gradient(135deg, #FFD9B3 0%, #FFC99A 100%)',  // Light Orange
-              'linear-gradient(135deg, #FFB5C5 0%, #FF9FB0 100%)',  // Light Pink
-              'linear-gradient(135deg, #D0E8FF 0%, #B8DEFF 100%)',  // Light Blue
-              'linear-gradient(135deg, #D8F5D8 0%, #C5EEC5 100%)',  // Light Green
-              'linear-gradient(135deg, #FFE8D6 0%, #FFDCC0 100%)',  // Light Peach
-            ]
-            const gradient = gradients[index % gradients.length]
-
-            return (
-              <Grid
-                item
-                xs={12}
-                sm={viewMode === 'grid' ? 6 : 12}
-                md={viewMode === 'grid' ? 4 : 12}
-                lg={viewMode === 'grid' ? 3 : 12}
-                key={product._id}
-              >
-                {/* Gradient Wrapper */}
-                <Box
-                  sx={{
-                    background: gradient,
-                    padding: '12px',
-                    borderRadius: 4,
-                    height: '100%'
-                  }}
-                >
-                  <Card
-                    sx={{
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: viewMode === 'grid' ? 'column' : 'row',
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s',
-                      '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
-                      },
-                      borderRadius: 3,
-                      overflow: 'hidden',
-                      background: 'white'
-                    }}
-                    onClick={() => navigate(`/products/${product._id}`)}
-                  >
-                    {/* Product Image */}
-                    <Box sx={{ position: 'relative', width: viewMode === 'grid' ? '100%' : 200, overflow: 'hidden', backgroundColor: '#f0f0f0' }}>
-                      {/* Gradient Background */}
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          background: `linear-gradient(135deg, ${['#FFB6C1', '#FFB6E1', '#FFC0CB', '#FFD1DC'][Math.floor(Math.random() * 4)]} 0%, ${['#FFE4E1', '#FFF0F5', '#FFE4F2', '#FFEBF5'][Math.floor(Math.random() * 4)]} 100%)`,
-                          zIndex: 0
-                        }}
-                      />
-                      
-                      <CardMedia
-                        component="img"
-                        height={viewMode === 'grid' ? 200 : 150}
-                        image={product.images[0] || '/default-product.svg'}
-                        alt={product.name}
-                        onError={(e) => {
-                          e.target.src = '/default-product.svg'
-                        }}
-                        sx={{ position: 'relative', zIndex: 1, objectFit: 'contain' }}
-                      />
-                      
-                      {/* Discount Badge */}
-                      {product.discount > 0 && (
-                        <Chip
-                          icon={<LocalOffer />}
-                          label={`-${product.discount}%`}
-                          color="error"
-                          sx={{
-                            position: 'absolute',
-                            top: 8,
-                            left: 8,
-                            fontWeight: 'bold'
-                          }}
-                        />
-                      )}
-                      
-                      {/* Eco Badge */}
-                      <Chip
-                        icon={<Nature />}
-                        label={`${product.ecoMetrics?.overallRating?.toFixed(1) || '4.0'}`}
-                        color="success"
-                        sx={{
-                          position: 'absolute',
-                          top: 8,
-                          right: 8,
-                          fontWeight: 'bold'
-                        }}
-                      />
-                      
-                      {/* Favorite Button */}
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          toggleFavorite(product._id)
-                        }}
-                        sx={{
-                          position: 'absolute',
-                          bottom: 8,
-                          right: 8,
-                          bgcolor: 'rgba(255,255,255,0.9)',
-                          '&:hover': { bgcolor: 'rgba(255,255,255,1)' }
-                        }}
-                      >
-                        {favorites.has(product._id) ? (
-                          <Favorite color="error" />
-                        ) : (
-                          <FavoriteBorder />
-                        )}
-                      </IconButton>
-                    </Box>
-                    
-                    {/* Product Info */}
-                    <CardContent sx={{ flex: 1, p: 2.5, display: 'flex', flexDirection: 'column' }}>
-                      <Typography
-                        variant="h6"
-                        component="h3"
-                        sx={{
-                          mb: 1,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          lineHeight: 1.2,
-                          fontWeight: 600,
-                          color: '#333'
-                        }}
-                      >
-                        {product.name}
-                      </Typography>
-                      
-                      {/* Category */}
-                      <Chip
-                        label={product.category}
-                        size="small"
-                        variant="outlined"
-                        sx={{ mb: 1, width: 'fit-content', fontSize: '0.75rem' }}
-                      />
-                      
-                      {/* Price - Large and Bold */}
-                      <Box sx={{ mb: 1, flex: 1 }}>
-                        <Typography variant="h6" color="primary" fontWeight="bold" sx={{ fontSize: '1.1rem' }}>
-                          Giá: {formatCurrency(finalPrice)}
-                        </Typography>
-                        {product.discount > 0 && (
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              textDecoration: 'line-through',
-                              color: 'text.secondary',
-                              fontSize: '0.9rem'
-                            }}
-                          >
-                            {formatCurrency(product.price)}
-                          </Typography>
-                        )}
-                      </Box>
-                      
-                      {/* Rating and Sales */}
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5, gap: 0.5 }}>
-                        <Rating
-                          value={product.rating}
-                          precision={0.1}
-                          readOnly
-                          size="small"
-                        />
-                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-                          ({product.sold} đã bán)
-                        </Typography>
-                      </Box>
-                      
-                      {/* Add to Cart Button - Pink/Magenta */}
-                      <Button
-                        variant="contained"
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          addToCart(product)
-                        }}
-                        fullWidth
-                        sx={{ 
-                          mt: 'auto',
-                          background: 'linear-gradient(135deg, #d946a6 0%, #c71585 100%)',
-                          color: 'white',
-                          fontWeight: 600,
-                          textTransform: 'none',
-                          borderRadius: 1.5,
-                          '&:hover': {
-                            background: 'linear-gradient(135deg, #c71585 0%, #b80570 100%)'
-                          }
-                        }}
-                      >
-                        Mua ngay
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </Box>
-              </Grid>
-            )
-          })}
-        </Grid>
-
-        {/* No products found */}
-        {products.length === 0 && !loading && (
-          <Paper sx={{ p: 6, textAlign: 'center' }}>
-            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-              Không tìm thấy sản phẩm nào
+      <Box sx={{ py: 4, position: 'relative', zIndex: 2 }}>
+        <Container maxWidth="lg">
+          {/* Results Info */}
+          <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, color: '#32778E' }}>
+              Tìm thấy <span style={{ color: '#32778E', fontWeight: 800, fontSize: '1.1em' }}>{products.length}</span> sản phẩm
+              {category !== 'Tất cả' && ` trong "${category}"`}
             </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
-            </Typography>
-          </Paper>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <Pagination
-              count={totalPages}
-              page={currentPage}
-              onChange={(event, page) => setCurrentPage(page)}
-              color="primary"
-              size="large"
-            />
+            <Button
+              startIcon={<FilterList />}
+              onClick={() => setMobileFilterOpen(true)}
+              sx={{ display: { xs: 'flex', md: 'none' }, color: '#333' }}
+            >
+              Bộ lọc
+            </Button>
           </Box>
-        )}
-      </Container>
+        </Container>
+
+        {/* Main Content Grid */}
+        <Container maxWidth="lg">
+          <Grid container spacing={3}>
+          {/* Sidebar - Desktop Only */}
+          <Grid item xs={12} md={3} sx={{ display: { xs: 'none', md: 'block' } }}>
+            <FilterSidebar />
+          </Grid>
+
+          {/* Products Grid */}
+          <Grid item xs={12} md={9}>
+            {products.length > 0 ? (
+              <Grid container spacing={3}>
+                {products.map((product, index) => (
+                  <Grid item xs={12} sm={6} md={4} key={product._id}>
+                    <ProductCard product={product} index={index} />
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 2 }}>
+                <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                  Không tìm thấy sản phẩm
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
+                </Typography>
+              </Paper>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
+                <Pagination
+                  count={totalPages}
+                  page={currentPage}
+                  onChange={(event, page) => setCurrentPage(page)}
+                  color="primary"
+                  size="large"
+                  sx={{
+                    '& .MuiPaginationItem-root': {
+                      fontWeight: 600
+                    }
+                  }}
+                />
+              </Box>
+            )}
+          </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Mobile Filter Drawer */}
+      <Drawer
+        anchor="bottom"
+        open={mobileFilterOpen}
+        onClose={() => setMobileFilterOpen(false)}
+        sx={{
+          '& .MuiDrawer-paper': {
+            borderRadius: '24px 24px 0 0'
+          }
+        }}
+      >
+        <Box sx={{ p: 3, maxHeight: '80vh', overflow: 'auto' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              Bộ lọc
+            </Typography>
+            <IconButton onClick={() => setMobileFilterOpen(false)}>
+              <Close />
+            </IconButton>
+          </Box>
+          <FilterSidebar />
+        </Box>
+      </Drawer>
     </Box>
   )
 }
