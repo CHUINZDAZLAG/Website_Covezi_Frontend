@@ -117,30 +117,15 @@ function AppBar() {
             {/* Logo */}
             <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
               <Box
+                component="img"
+                src="/src/assets/Covezi_Logo.png"
+                alt="Covezi Logo"
                 sx={{
-                  width: 40,
                   height: 40,
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 12px rgba(76, 175, 80, 0.3)'
+                  width: 'auto',
+                  display: 'block'
                 }}
-              >
-                <Park sx={{ color: 'white', fontSize: 24 }} />
-              </Box>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 'bold',
-                  color: '#063B71',
-                  display: { xs: 'none', sm: 'block' },
-                  letterSpacing: 1
-                }}
-              >
-                COVEZI
-              </Typography>
+              />
             </Link>
 
             {/* Desktop Navigation */}
@@ -332,12 +317,16 @@ function AppBar() {
         }}
       >
         <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Park sx={{ color: '#2e7d32', fontSize: 28 }} />
-            <Typography variant="h6" fontWeight="bold" color="primary">
-              COVEZI
-            </Typography>
-          </Box>
+          <Box
+            component="img"
+            src="/src/assets/Covezi_Logo.png"
+            alt="Covezi Logo"
+            sx={{
+              height: 36,
+              width: 'auto',
+              display: 'block'
+            }}
+          />
           <IconButton onClick={() => setMobileMenuOpen(false)}>
             <Close />
           </IconButton>

@@ -1,10 +1,18 @@
 let apiRoot = ''
-if (process.env.BUILD_MODE === 'dev') {
+
+// Use import.meta.env instead of process.env for Vite
+if (import.meta.env.DEV) {
   apiRoot = import.meta.env.VITE_API_URL || 'http://localhost:8017'
 }
-if (process.env.BUILD_MODE === 'production') {
+if (import.meta.env.PROD) {
   apiRoot = import.meta.env.VITE_API_URL || 'https://covezi-backend-2.onrender.com'
 }
+
+// Fallback if apiRoot is still empty (should not happen)
+if (!apiRoot) {
+  apiRoot = 'https://covezi-backend-2.onrender.com'
+}
+
 export const API_ROOT = apiRoot
 export const API_ENDPOINT = apiRoot
 
