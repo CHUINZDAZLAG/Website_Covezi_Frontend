@@ -1,6 +1,5 @@
 import { Box, Typography } from '@mui/material'
-import { useState, useEffect } from 'react'
-import styled from '@emotion/styled'
+import { styled } from '@mui/material/styles'
 import { keyframes } from '@emotion/react'
 
 // Animation for XP popup floating up
@@ -15,12 +14,12 @@ const floatUp = keyframes`
   }
 `
 
-const XpPopupContainer = styled(Box)`
-  position: absolute;
-  pointer-events: none;
-  animation: ${floatUp} 1.5s ease-out forwards;
-  z-index: 10;
-`
+const XpPopupContainer = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  pointerEvents: 'none',
+  zIndex: 10,
+  animation: `${floatUp} 1.5s ease-out forwards`
+}))
 
 function XpTransaction({ xp, x, y, action }) {
   return (
