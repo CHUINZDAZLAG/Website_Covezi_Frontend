@@ -49,8 +49,11 @@ export const userSlice = createSlice({
       const user = action.payload
       state.currentUser = user
       // Save token to localStorage if it exists
+      // The response includes accessToken from backend login endpoint
       if (user?.accessToken) {
         localStorage.setItem('accessToken', user.accessToken)
+        // Also set it in axios headers immediately
+        authorizedAxiosInstance.defaults.headers.common['Authorization'] = `Bearer ${user.accessToken}`
       }
     })
     builder.addCase(logoutUserAPI.fulfilled, (state) => {
