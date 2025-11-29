@@ -27,8 +27,8 @@ authorizedAxiosInstance.interceptors.request.use((config) => {
   // Spam click blocking techniques
   interceptorLoadingElements(true)
 
-  // Try to get token from localStorage if available and add to Authorization header
-  // This supports both httpOnly cookie AND token in localStorage strategies
+  // Backend uses httpOnly cookies for auth, so withCredentials: true will send them automatically
+  // But also support Authorization header from localStorage as fallback
   const token = localStorage.getItem('accessToken')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
@@ -47,6 +47,9 @@ let refreshTokenPromise = null
 authorizedAxiosInstance.interceptors.response.use((response) => {
   // Success response handler
   interceptorLoadingElements(false)
+  
+  // Debug: Log successful responses to check if token/cookies are being set
+  console.log('API Response:', response.config.url, response.status, response.data)
 
   return response
 }, (error) => {
