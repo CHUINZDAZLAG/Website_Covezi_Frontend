@@ -53,59 +53,62 @@ function LoginForm() {
         }}>
           {/* Title */}
           <Box sx={{
-            padding: '3em 1em 1em 1em',
+            padding: '2em 1em 1.5em 1em',
             textAlign: 'center'
           }}>
             <Typography variant="h4" sx={{
               fontWeight: 'bold',
               color: '#2c5f6f',
-              fontSize: '1.8rem'
+              fontSize: '1.6rem',
+              lineHeight: '1.4'
             }}>
               Rất vui được gặp<br />lại bạn
             </Typography>
           </Box>
 
           {/* Alerts */}
-          <Box sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            flexDirection: 'column',
-            padding: '0 1em'
-          }}>
-            {verifiedEmail &&
-              <Alert severity="success" sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
-                Your email&nbsp;
-                <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}>{verifiedEmail}</Typography>
-                &nbsp;has been verified.<br />Now you can login to enjoy our services! Have a good day!
-              </Alert>
-            }
-            {registeredEmail &&
-              <Alert severity="info" sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
-                An email has been sent to&nbsp;
-                <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}>{registeredEmail}</Typography>
-                <br />Please check and verify your account before logging in!
-              </Alert>
-            }
-          </Box>
+          {(verifiedEmail || registeredEmail) && (
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              flexDirection: 'column',
+              padding: '0 1em 1em 1em'
+            }}>
+              {verifiedEmail &&
+                <Alert severity="success" sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
+                  Your email&nbsp;
+                  <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}>{verifiedEmail}</Typography>
+                  &nbsp;has been verified.<br />Now you can login to enjoy our services! Have a good day!
+                </Alert>
+              }
+              {registeredEmail &&
+                <Alert severity="info" sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
+                  An email has been sent to&nbsp;
+                  <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}>{registeredEmail}</Typography>
+                  <br />Please check and verify your account before logging in!
+                </Alert>
+              }
+            </Box>
+          )}
 
           {/* Form Fields */}
-          <Box sx={{ padding: '1.5em 1em' }}>
-            <Box sx={{ marginTop: '1em' }}>
+          <Box sx={{ padding: '0 1.2em 1.2em 1.2em' }}>
+            <Box sx={{ marginTop: '0.5em' }}>
               <TextField
                 autoFocus
                 fullWidth
-                placeholder="Enter Email..."
+                placeholder="Email Address"
                 type="text"
                 variant="outlined"
                 error={!!errors['email']}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: '10px',
-                    backgroundColor: '#f5f5f5',
-                    fontSize: '0.95rem'
+                    borderRadius: '8px',
+                    backgroundColor: '#f8f8f8',
+                    fontSize: '0.9rem'
                   },
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#e0e0e0'
+                    borderColor: '#e5e5e5'
                   }
                 }}
                 {...register('email', {
@@ -118,21 +121,21 @@ function LoginForm() {
               />
               <FieldErrorAlert errors={errors} fieldName={'email'} />
             </Box>
-            <Box sx={{ marginTop: '1.2em' }}>
+            <Box sx={{ marginTop: '0.8em' }}>
               <TextField
                 fullWidth
-                placeholder="Enter Password..."
+                placeholder="Password"
                 type="password"
                 variant="outlined"
                 error={!!errors['password']}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: '10px',
-                    backgroundColor: '#f5f5f5',
-                    fontSize: '0.95rem'
+                    borderRadius: '8px',
+                    backgroundColor: '#f8f8f8',
+                    fontSize: '0.9rem'
                   },
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#e0e0e0'
+                    borderColor: '#e5e5e5'
                   }
                 }}
                 {...register('password', {
@@ -148,7 +151,7 @@ function LoginForm() {
           </Box>
 
           {/* Submit Button */}
-          <CardActions sx={{ padding: '0 1em 1.5em 1em' }}>
+          <CardActions sx={{ padding: '0 1.2em 1em 1.2em' }}>
             <Button
               className='interceptor-loading'
               type="submit"
@@ -159,7 +162,7 @@ function LoginForm() {
                 backgroundColor: '#2c5f6f',
                 color: 'white',
                 borderRadius: '10px',
-                padding: '0.8em 0',
+                padding: '0.75em 0',
                 fontSize: '1rem',
                 fontWeight: '600',
                 textTransform: 'none',
@@ -174,10 +177,10 @@ function LoginForm() {
 
           {/* Sign Up Link */}
           <Box sx={{
-            padding: '0 1em 2em 1em',
+            padding: '0 1.2em 1.5em 1.2em',
             textAlign: 'center'
           }}>
-            <Typography sx={{ fontSize: '0.95rem', color: '#666' }}>
+            <Typography sx={{ fontSize: '0.85rem', color: '#666' }}>
               Dont Have An Account?{' '}
               <Link to="/register" style={{ textDecoration: 'none' }}>
                 <Typography component="span" sx={{

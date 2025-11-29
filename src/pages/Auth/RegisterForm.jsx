@@ -45,21 +45,22 @@ function RegisterForm() {
         }}>
           {/* Title */}
           <Box sx={{
-            padding: '3em 1em 1em 1em',
+            padding: '2em 1em 1.5em 1em',
             textAlign: 'center'
           }}>
             <Typography variant="h4" sx={{
               fontWeight: 'bold',
               color: '#2c5f6f',
-              fontSize: '1.8rem'
+              fontSize: '1.6rem',
+              lineHeight: '1.4'
             }}>
               Tạo tài khoản<br />mới
             </Typography>
           </Box>
 
           {/* Form Fields */}
-          <Box sx={{ padding: '1.5em 1em' }}>
-            <Box sx={{ marginTop: '1em' }}>
+          <Box sx={{ padding: '0 1.2em 1.2em 1.2em' }}>
+            <Box sx={{ marginTop: '0.5em' }}>
               <TextField
                 autoFocus
                 fullWidth
@@ -69,12 +70,12 @@ function RegisterForm() {
                 error={!!errors['email']}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: '10px',
-                    backgroundColor: '#f5f5f5',
-                    fontSize: '0.95rem'
+                    borderRadius: '8px',
+                    backgroundColor: '#f8f8f8',
+                    fontSize: '0.9rem'
                   },
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#e0e0e0'
+                    borderColor: '#e5e5e5'
                   }
                 }}
                 {...register('email', {
@@ -87,7 +88,7 @@ function RegisterForm() {
               />
               <FieldErrorAlert errors={errors} fieldName={'email'} />
             </Box>
-            <Box sx={{ marginTop: '1.2em' }}>
+            <Box sx={{ marginTop: '0.8em' }}>
               <TextField
                 fullWidth
                 placeholder="Password"
@@ -96,12 +97,12 @@ function RegisterForm() {
                 error={!!errors['password']}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: '10px',
-                    backgroundColor: '#f5f5f5',
-                    fontSize: '0.95rem'
+                    borderRadius: '8px',
+                    backgroundColor: '#f8f8f8',
+                    fontSize: '0.9rem'
                   },
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#e0e0e0'
+                    borderColor: '#e5e5e5'
                   }
                 }}
                 {...register('password', {
@@ -114,7 +115,7 @@ function RegisterForm() {
               />
               <FieldErrorAlert errors={errors} fieldName={'password'} />
             </Box>
-            <Box sx={{ marginTop: '1.2em' }}>
+            <Box sx={{ marginTop: '0.8em' }}>
               <TextField
                 fullWidth
                 placeholder="Confirm Password"
@@ -123,12 +124,12 @@ function RegisterForm() {
                 error={!!errors['password_confirmation']}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: '10px',
-                    backgroundColor: '#f5f5f5',
-                    fontSize: '0.95rem'
+                    borderRadius: '8px',
+                    backgroundColor: '#f8f8f8',
+                    fontSize: '0.9rem'
                   },
                   '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#e0e0e0'
+                    borderColor: '#e5e5e5'
                   }
                 }}
                 {...register('password_confirmation', {
@@ -143,7 +144,7 @@ function RegisterForm() {
           </Box>
 
           {/* Submit Button */}
-          <CardActions sx={{ padding: '0 1em 1.5em 1em' }}>
+          <CardActions sx={{ padding: '0 1.2em 1em 1.2em' }}>
             <Button
               className='interceptor-loading'
               type="submit"
@@ -154,7 +155,7 @@ function RegisterForm() {
                 backgroundColor: '#2c5f6f',
                 color: 'white',
                 borderRadius: '10px',
-                padding: '0.8em 0',
+                padding: '0.75em 0',
                 fontSize: '1rem',
                 fontWeight: '600',
                 textTransform: 'none',
@@ -169,10 +170,10 @@ function RegisterForm() {
 
           {/* Sign In Link */}
           <Box sx={{
-            padding: '0 1em 2em 1em',
+            padding: '0 1.2em 1.5em 1.2em',
             textAlign: 'center'
           }}>
-            <Typography sx={{ fontSize: '0.95rem', color: '#666' }}>
+            <Typography sx={{ fontSize: '0.85rem', color: '#666' }}>
               Already Have An Account?{' '}
               <Link to="/login" style={{ textDecoration: 'none' }}>
                 <Typography component="span" sx={{
