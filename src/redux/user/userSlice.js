@@ -48,6 +48,10 @@ export const userSlice = createSlice({
     builder.addCase(loginUserAPI.fulfilled, (state, action) => {
       const user = action.payload
       state.currentUser = user
+      // Save token to localStorage if it exists
+      if (user?.accessToken) {
+        localStorage.setItem('accessToken', user.accessToken)
+      }
     })
     builder.addCase(logoutUserAPI.fulfilled, (state) => {
     /**
@@ -55,6 +59,8 @@ export const userSlice = createSlice({
      * Kết hợp ProtectedRoute đã làm ở App.js => code sẽ điều hướng chuẩn về trang Login
      */
       state.currentUser = null
+      // Clear token from localStorage on logout
+      localStorage.removeItem('accessToken')
     })
     builder.addCase(updateUserAPI.fulfilled, (state, action) => {
       const user = action.payload
