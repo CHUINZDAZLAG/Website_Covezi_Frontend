@@ -164,28 +164,15 @@ const Products = () => {
     <Box sx={{ minHeight: '100vh', backgroundColor: 'transparent' }}>
       <AppBar />
       
-      {/* Header with Background Image */}
+      {/* Header with Gradient */}
       <Box
         sx={{
-          backgroundImage: 'url(/src/assets/Covezi_Product_Cover.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
+          background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
           py: { xs: 6, md: 8 },
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.15)',
-            zIndex: 1
-          }
+          position: 'relative'
         }}
       >
-        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
+        <Container maxWidth="lg">
           {/* Search and Filter Bar inside header */}
           <Paper sx={{ p: 3, borderRadius: 2.5, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
             <Grid container spacing={2} alignItems="center">
