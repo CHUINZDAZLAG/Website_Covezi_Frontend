@@ -269,9 +269,8 @@ const Products = () => {
                   </IconButton>
                 </Box>
               </Grid>
-            </Box>
-          </Grid>
-        </Container>
+            </Grid>
+          </Container>
       </Box>
 
       <Container maxWidth="lg" sx={{ py: 4 }}>
