@@ -1,4 +1,4 @@
-# 📋 Trello Clone - Frontend
+
 
 ## 📖 Mô tả dự án (What & Why)
 
@@ -128,4 +128,5 @@
 ---
 
 📄 **License**: MIT License
+
 ⭐ Nếu dự án hữu ích, hãy cho một star nhé!
