@@ -216,8 +216,19 @@ const Products = () => {
 
         {/* Products Grid/List */}
         <Grid container spacing={3}>
-          {products.map((product) => {
+          {products.map((product, index) => {
             const finalPrice = getFinalPrice(product)
+            
+            // Gradient colors - pastel colors like the design
+            const gradients = [
+              'linear-gradient(135deg, #E8B4D8 0%, #D99ECB 100%)',  // Light Purple/Pink
+              'linear-gradient(135deg, #FFD9B3 0%, #FFC99A 100%)',  // Light Orange
+              'linear-gradient(135deg, #FFB5C5 0%, #FF9FB0 100%)',  // Light Pink
+              'linear-gradient(135deg, #D0E8FF 0%, #B8DEFF 100%)',  // Light Blue
+              'linear-gradient(135deg, #D8F5D8 0%, #C5EEC5 100%)',  // Light Green
+              'linear-gradient(135deg, #FFE8D6 0%, #FFDCC0 100%)',  // Light Peach
+            ]
+            const gradient = gradients[index % gradients.length]
 
             return (
               <Grid
@@ -228,184 +239,194 @@ const Products = () => {
                 lg={viewMode === 'grid' ? 3 : 12}
                 key={product._id}
               >
-                <Card
+                {/* Gradient Wrapper */}
+                <Box
                   sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: viewMode === 'grid' ? 'column' : 'row',
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
-                    },
-                    borderRadius: 2.5,
-                    overflow: 'hidden',
-                    background: 'white'
+                    background: gradient,
+                    padding: '12px',
+                    borderRadius: 4,
+                    height: '100%'
                   }}
-                  onClick={() => navigate(`/products/${product._id}`)}
                 >
-                  {/* Product Image */}
-                  <Box sx={{ position: 'relative', width: viewMode === 'grid' ? '100%' : 200, overflow: 'hidden', backgroundColor: '#f0f0f0' }}>
-                    {/* Gradient Background */}
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: `linear-gradient(135deg, ${['#FFB6C1', '#FFB6E1', '#FFC0CB', '#FFD1DC'][Math.floor(Math.random() * 4)]} 0%, ${['#FFE4E1', '#FFF0F5', '#FFE4F2', '#FFEBF5'][Math.floor(Math.random() * 4)]} 100%)`,
-                        zIndex: 0
-                      }}
-                    />
-                    
-                    <CardMedia
-                      component="img"
-                      height={viewMode === 'grid' ? 200 : 150}
-                      image={product.images[0] || '/default-product.svg'}
-                      alt={product.name}
-                      onError={(e) => {
-                        e.target.src = '/default-product.svg'
-                      }}
-                      sx={{ position: 'relative', zIndex: 1, objectFit: 'contain' }}
-                    />
-                    
-                    {/* Discount Badge */}
-                    {product.discount > 0 && (
+                  <Card
+                    sx={{
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: viewMode === 'grid' ? 'column' : 'row',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
+                      },
+                      borderRadius: 3,
+                      overflow: 'hidden',
+                      background: 'white'
+                    }}
+                    onClick={() => navigate(`/products/${product._id}`)}
+                  >
+                    {/* Product Image */}
+                    <Box sx={{ position: 'relative', width: viewMode === 'grid' ? '100%' : 200, overflow: 'hidden', backgroundColor: '#f0f0f0' }}>
+                      {/* Gradient Background */}
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: `linear-gradient(135deg, ${['#FFB6C1', '#FFB6E1', '#FFC0CB', '#FFD1DC'][Math.floor(Math.random() * 4)]} 0%, ${['#FFE4E1', '#FFF0F5', '#FFE4F2', '#FFEBF5'][Math.floor(Math.random() * 4)]} 100%)`,
+                          zIndex: 0
+                        }}
+                      />
+                      
+                      <CardMedia
+                        component="img"
+                        height={viewMode === 'grid' ? 200 : 150}
+                        image={product.images[0] || '/default-product.svg'}
+                        alt={product.name}
+                        onError={(e) => {
+                          e.target.src = '/default-product.svg'
+                        }}
+                        sx={{ position: 'relative', zIndex: 1, objectFit: 'contain' }}
+                      />
+                      
+                      {/* Discount Badge */}
+                      {product.discount > 0 && (
+                        <Chip
+                          icon={<LocalOffer />}
+                          label={`-${product.discount}%`}
+                          color="error"
+                          sx={{
+                            position: 'absolute',
+                            top: 8,
+                            left: 8,
+                            fontWeight: 'bold'
+                          }}
+                        />
+                      )}
+                      
+                      {/* Eco Badge */}
                       <Chip
-                        icon={<LocalOffer />}
-                        label={`-${product.discount}%`}
-                        color="error"
+                        icon={<Nature />}
+                        label={`${product.ecoMetrics?.overallRating?.toFixed(1) || '4.0'}`}
+                        color="success"
                         sx={{
                           position: 'absolute',
                           top: 8,
-                          left: 8,
+                          right: 8,
                           fontWeight: 'bold'
                         }}
                       />
-                    )}
-                    
-                    {/* Eco Badge */}
-                    <Chip
-                      icon={<Nature />}
-                      label={`${product.ecoMetrics?.overallRating?.toFixed(1) || '4.0'}`}
-                      color="success"
-                      sx={{
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        fontWeight: 'bold'
-                      }}
-                    />
-                    
-                    {/* Favorite Button */}
-                    <IconButton
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        toggleFavorite(product._id)
-                      }}
-                      sx={{
-                        position: 'absolute',
-                        bottom: 8,
-                        right: 8,
-                        bgcolor: 'rgba(255,255,255,0.9)',
-                        '&:hover': { bgcolor: 'rgba(255,255,255,1)' }
-                      }}
-                    >
-                      {favorites.has(product._id) ? (
-                        <Favorite color="error" />
-                      ) : (
-                        <FavoriteBorder />
-                      )}
-                    </IconButton>
-                  </Box>
-                  
-                  {/* Product Info */}
-                  <CardContent sx={{ flex: 1, p: 2.5, display: 'flex', flexDirection: 'column' }}>
-                    <Typography
-                      variant="h6"
-                      component="h3"
-                      sx={{
-                        mb: 1,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        lineHeight: 1.2,
-                        fontWeight: 600,
-                        color: '#333'
-                      }}
-                    >
-                      {product.name}
-                    </Typography>
-                    
-                    {/* Category */}
-                    <Chip
-                      label={product.category}
-                      size="small"
-                      variant="outlined"
-                      sx={{ mb: 1, width: 'fit-content', fontSize: '0.75rem' }}
-                    />
-                    
-                    {/* Price - Large and Bold */}
-                    <Box sx={{ mb: 1, flex: 1 }}>
-                      <Typography variant="h6" color="primary" fontWeight="bold" sx={{ fontSize: '1.1rem' }}>
-                        Giá: {formatCurrency(finalPrice)}
-                      </Typography>
-                      {product.discount > 0 && (
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            textDecoration: 'line-through',
-                            color: 'text.secondary',
-                            fontSize: '0.9rem'
-                          }}
-                        >
-                          {formatCurrency(product.price)}
-                        </Typography>
-                      )}
+                      
+                      {/* Favorite Button */}
+                      <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleFavorite(product._id)
+                        }}
+                        sx={{
+                          position: 'absolute',
+                          bottom: 8,
+                          right: 8,
+                          bgcolor: 'rgba(255,255,255,0.9)',
+                          '&:hover': { bgcolor: 'rgba(255,255,255,1)' }
+                        }}
+                      >
+                        {favorites.has(product._id) ? (
+                          <Favorite color="error" />
+                        ) : (
+                          <FavoriteBorder />
+                        )}
+                      </IconButton>
                     </Box>
                     
-                    {/* Rating and Sales */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5, gap: 0.5 }}>
-                      <Rating
-                        value={product.rating}
-                        precision={0.1}
-                        readOnly
+                    {/* Product Info */}
+                    <CardContent sx={{ flex: 1, p: 2.5, display: 'flex', flexDirection: 'column' }}>
+                      <Typography
+                        variant="h6"
+                        component="h3"
+                        sx={{
+                          mb: 1,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          lineHeight: 1.2,
+                          fontWeight: 600,
+                          color: '#333'
+                        }}
+                      >
+                        {product.name}
+                      </Typography>
+                      
+                      {/* Category */}
+                      <Chip
+                        label={product.category}
                         size="small"
+                        variant="outlined"
+                        sx={{ mb: 1, width: 'fit-content', fontSize: '0.75rem' }}
                       />
-                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-                        ({product.sold} đã bán)
-                      </Typography>
-                    </Box>
-                    
-                    {/* Add to Cart Button - Pink/Magenta */}
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        addToCart(product)
-                      }}
-                      fullWidth
-                      sx={{ 
-                        mt: 'auto',
-                        background: 'linear-gradient(135deg, #d946a6 0%, #c71585 100%)',
-                        color: 'white',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        borderRadius: 1.5,
-                        '&:hover': {
-                          background: 'linear-gradient(135deg, #c71585 0%, #b80570 100%)'
-                        }
-                      }}
-                    >
-                      Mua ngay
-                    </Button>
-                  </CardContent>
-                </Card>
+                      
+                      {/* Price - Large and Bold */}
+                      <Box sx={{ mb: 1, flex: 1 }}>
+                        <Typography variant="h6" color="primary" fontWeight="bold" sx={{ fontSize: '1.1rem' }}>
+                          Giá: {formatCurrency(finalPrice)}
+                        </Typography>
+                        {product.discount > 0 && (
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              textDecoration: 'line-through',
+                              color: 'text.secondary',
+                              fontSize: '0.9rem'
+                            }}
+                          >
+                            {formatCurrency(product.price)}
+                          </Typography>
+                        )}
+                      </Box>
+                      
+                      {/* Rating and Sales */}
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5, gap: 0.5 }}>
+                        <Rating
+                          value={product.rating}
+                          precision={0.1}
+                          readOnly
+                          size="small"
+                        />
+                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                          ({product.sold} đã bán)
+                        </Typography>
+                      </Box>
+                      
+                      {/* Add to Cart Button - Pink/Magenta */}
+                      <Button
+                        variant="contained"
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          addToCart(product)
+                        }}
+                        fullWidth
+                        sx={{ 
+                          mt: 'auto',
+                          background: 'linear-gradient(135deg, #d946a6 0%, #c71585 100%)',
+                          color: 'white',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          borderRadius: 1.5,
+                          '&:hover': {
+                            background: 'linear-gradient(135deg, #c71585 0%, #b80570 100%)'
+                          }
+                        }}
+                      >
+                        Mua ngay
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Box>
               </Grid>
             )
           })}
