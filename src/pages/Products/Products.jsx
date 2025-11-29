@@ -169,22 +169,22 @@ const Products = () => {
         sx={{
           background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
           color: 'white',
-          py: { xs: 4, md: 6 }
+          py: { xs: 3, md: 4 }
         }}
       >
         <Container maxWidth="lg">
-          <Typography variant="h3" component="h1" sx={{ mb: 2, fontWeight: 'bold' }}>
-            Sản phẩm xanh
+          <Typography variant="h3" component="h1" sx={{ mb: 1, fontWeight: 'bold', fontSize: { xs: '1.8rem', md: '2.5rem' } }}>
+            🛍️ Sản phẩm xanh
           </Typography>
-          <Typography variant="h6" sx={{ opacity: 0.9 }}>
-            Khám phá hàng ngàn sản phẩm thân thiện với môi trường
+          <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 400 }}>
+            Khám phá hàng ngàn sản phẩm thân thiện với môi trường - Mua sắm có trách nhiệm
           </Typography>
         </Container>
       </Box>
 
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Search and Filter Bar */}
-        <Paper sx={{ p: 3, mb: 4 }}>
+        <Paper sx={{ p: 3, mb: 4, borderRadius: 2.5, boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
           <Grid container spacing={2} alignItems="center">
             {/* Search */}
             <Grid item xs={12} md={4}>
@@ -193,10 +193,16 @@ const Products = () => {
                 placeholder="Tìm kiếm sản phẩm..."
                 value={searchQuery}
                 onChange={handleSearch}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 1.5,
+                    backgroundColor: '#f5f5f5'
+                  }
+                }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Search />
+                      <Search sx={{ color: '#999' }} />
                     </InputAdornment>
                   )
                 }}
@@ -211,6 +217,7 @@ const Products = () => {
                   value={category}
                   label="Danh mục"
                   onChange={handleCategoryChange}
+                  sx={{ borderRadius: 1.5 }}
                 >
                   {categories.map((cat) => (
                     <MenuItem key={cat} value={cat === 'Tất cả' ? '' : cat}>
@@ -229,6 +236,7 @@ const Products = () => {
                   value={sortBy}
                   label="Sắp xếp"
                   onChange={handleSortChange}
+                  sx={{ borderRadius: 1.5 }}
                 >
                   {sortOptions.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
@@ -241,10 +249,11 @@ const Products = () => {
             
             {/* View Mode and Filters */}
             <Grid item xs={12} md={2}>
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
                 <IconButton
                   onClick={() => setViewMode('grid')}
                   color={viewMode === 'grid' ? 'primary' : 'default'}
+                  title="Lưới"
                 >
                   <GridView />
                 </IconButton>
@@ -324,14 +333,20 @@ const Products = () => {
 
         {/* Products Count */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h6">
-            Tìm thấy {products.length} sản phẩm
-          </Typography>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              ✨ Tìm thấy <strong style={{ color: '#4caf50' }}>{products.length}</strong> sản phẩm
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {category ? `Danh mục: ${category}` : 'Tất cả danh mục'}
+            </Typography>
+          </Box>
           <Button
             startIcon={showFilters ? <ExpandLess /> : <ExpandMore />}
             onClick={() => setShowFilters(!showFilters)}
+            sx={{ textTransform: 'none' }}
           >
-            {showFilters ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
+            {showFilters ? 'Ẩn bộ lọc' : 'Hiện thêm'}
           </Button>
         </Box>
 
@@ -355,16 +370,32 @@ const Products = () => {
                     display: 'flex',
                     flexDirection: viewMode === 'grid' ? 'column' : 'row',
                     cursor: 'pointer',
-                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s',
                     '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                    }
+                      transform: 'translateY(-4px)',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
+                    },
+                    borderRadius: 2.5,
+                    overflow: 'hidden',
+                    background: 'white'
                   }}
                   onClick={() => navigate(`/products/${product._id}`)}
                 >
                   {/* Product Image */}
-                  <Box sx={{ position: 'relative', width: viewMode === 'grid' ? '100%' : 200 }}>
+                  <Box sx={{ position: 'relative', width: viewMode === 'grid' ? '100%' : 200, overflow: 'hidden', backgroundColor: '#f0f0f0' }}>
+                    {/* Gradient Background */}
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: `linear-gradient(135deg, ${['#FFB6C1', '#FFB6E1', '#FFC0CB', '#FFD1DC'][Math.floor(Math.random() * 4)]} 0%, ${['#FFE4E1', '#FFF0F5', '#FFE4F2', '#FFEBF5'][Math.floor(Math.random() * 4)]} 100%)`,
+                        zIndex: 0
+                      }}
+                    />
+                    
                     <CardMedia
                       component="img"
                       height={viewMode === 'grid' ? 200 : 150}
@@ -373,6 +404,7 @@ const Products = () => {
                       onError={(e) => {
                         e.target.src = '/default-product.svg'
                       }}
+                      sx={{ position: 'relative', zIndex: 1, objectFit: 'contain' }}
                     />
                     
                     {/* Discount Badge */}
@@ -426,7 +458,7 @@ const Products = () => {
                   </Box>
                   
                   {/* Product Info */}
-                  <CardContent sx={{ flex: 1, p: 2 }}>
+                  <CardContent sx={{ flex: 1, p: 2.5, display: 'flex', flexDirection: 'column' }}>
                     <Typography
                       variant="h6"
                       component="h3"
@@ -437,25 +469,12 @@ const Products = () => {
                         display: '-webkit-box',
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: 'vertical',
-                        lineHeight: 1.2
+                        lineHeight: 1.2,
+                        fontWeight: 600,
+                        color: '#333'
                       }}
                     >
                       {product.name}
-                    </Typography>
-                    
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        mb: 1,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical'
-                      }}
-                    >
-                      {product.description}
                     </Typography>
                     
                     {/* Category */}
@@ -463,55 +482,63 @@ const Products = () => {
                       label={product.category}
                       size="small"
                       variant="outlined"
-                      sx={{ mb: 1 }}
+                      sx={{ mb: 1, width: 'fit-content', fontSize: '0.75rem' }}
                     />
                     
+                    {/* Price - Large and Bold */}
+                    <Box sx={{ mb: 1, flex: 1 }}>
+                      <Typography variant="h6" color="primary" fontWeight="bold" sx={{ fontSize: '1.1rem' }}>
+                        Giá: {formatCurrency(finalPrice)}
+                      </Typography>
+                      {product.discount > 0 && (
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            textDecoration: 'line-through',
+                            color: 'text.secondary',
+                            fontSize: '0.9rem'
+                          }}
+                        >
+                          {formatCurrency(product.price)}
+                        </Typography>
+                      )}
+                    </Box>
+                    
                     {/* Rating and Sales */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5, gap: 0.5 }}>
                       <Rating
                         value={product.rating}
                         precision={0.1}
                         readOnly
                         size="small"
                       />
-                      <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
                         ({product.sold} đã bán)
                       </Typography>
                     </Box>
                     
-                    {/* Price */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                      <Box>
-                        <Typography variant="h6" color="primary" fontWeight="bold">
-                          {formatCurrency(finalPrice)}
-                        </Typography>
-                        {product.discount > 0 && (
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              textDecoration: 'line-through',
-                              color: 'text.secondary'
-                            }}
-                          >
-                            {formatCurrency(product.price)}
-                          </Typography>
-                        )}
-                      </Box>
-                    </Box>
-                    
-                    {/* Add to Cart Button */}
+                    {/* Add to Cart Button - Pink/Magenta */}
                     <Button
                       variant="contained"
                       size="small"
-                      startIcon={<ShoppingCart />}
                       onClick={(e) => {
                         e.stopPropagation()
                         addToCart(product)
                       }}
                       fullWidth
-                      sx={{ mt: 1 }}
+                      sx={{ 
+                        mt: 'auto',
+                        background: 'linear-gradient(135deg, #d946a6 0%, #c71585 100%)',
+                        color: 'white',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        borderRadius: 1.5,
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, #c71585 0%, #b80570 100%)'
+                        }
+                      }}
                     >
-                      Thêm vào giỏ
+                      Mua ngay
                     </Button>
                   </CardContent>
                 </Card>
