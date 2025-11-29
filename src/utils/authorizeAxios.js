@@ -47,9 +47,6 @@ let refreshTokenPromise = null
 authorizedAxiosInstance.interceptors.response.use((response) => {
   // Success response handler
   interceptorLoadingElements(false)
-  
-  // Debug: Log successful responses to check if token/cookies are being set
-  console.log('API Response:', response.config.url, response.status, response.data)
 
   return response
 }, (error) => {

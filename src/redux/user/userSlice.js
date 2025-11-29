@@ -47,14 +47,10 @@ export const userSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(loginUserAPI.fulfilled, (state, action) => {
       const user = action.payload
-      console.log('Login payload received:', user) // Debug log
       state.currentUser = user
       // Save token to localStorage if it exists
       if (user?.accessToken) {
-        console.log('Saving token to localStorage:', user.accessToken) // Debug log
         localStorage.setItem('accessToken', user.accessToken)
-      } else {
-        console.log('No accessToken in response, response keys:', Object.keys(user || {})) // Debug log
       }
     })
     builder.addCase(logoutUserAPI.fulfilled, (state) => {

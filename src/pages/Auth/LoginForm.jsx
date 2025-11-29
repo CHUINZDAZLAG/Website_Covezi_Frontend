@@ -35,8 +35,6 @@ function LoginForm() {
       dispatch(loginUserAPI({ email, password })),
       { pending: 'Logging in...' }
     ).then(res => {
-      console.log('Login response:', res) // Debug log
-      console.log('Token in localStorage:', localStorage.getItem('accessToken')) // Debug log
       // Check if there is no error then redirect route /
       if (!res.error) navigate('/')
     })
