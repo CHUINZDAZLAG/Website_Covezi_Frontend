@@ -1,10 +1,10 @@
 {
-  "name": "trello-frontend",
+  "name": "covezi-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
-  "author": "Trander",
-  "description": "trello frontend",
+  "author": "chaunn nguyen",
+  "description": "covezi frontend - Green e-commerce platform",
   "engines": {
     "node": ">=18.x"
   },
@@ -20,9 +20,9 @@
     "@dnd-kit/utilities": "3.2.1",
     "@emotion/react": "11.11.0",
     "@emotion/styled": "11.11.0",
-    "@mui/icons-material": "5.11.16",
-    "@mui/lab": "^5.0.0-alpha.163",
-    "@mui/material": "5.13.0",
+    "@mui/icons-material": "^5.15.0",
+    "@mui/lab": "^5.0.0-alpha.177",
+    "@mui/material": "^5.15.0",
     "@reduxjs/toolkit": "2.0.1",
     "@uiw/react-md-editor": "^4.0.7",
     "axios": "1.5.1",
