@@ -171,78 +171,81 @@ const Products = () => {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
-          py: { xs: 6, md: 8 },
-          position: 'relative'
+          py: { xs: 4, md: 5 },
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}
       >
+        <Container maxWidth="sm">
+          {/* Search Bar Only */}
+          <TextField
+            fullWidth
+            placeholder="Tìm kiếm sản phẩm của Covezi"
+            value={searchQuery}
+            onChange={handleSearch}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 4,
+                backgroundColor: 'white',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.15)'
+              }
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search sx={{ color: '#999', mr: 1 }} />
+                </InputAdornment>
+              )
+            }}
+          />
+        </Container>
+      </Box>
+
+      {/* Filter and Sort Bar */}
+      <Box sx={{ backgroundColor: '#f9f9f9', py: 2, borderBottom: '1px solid #e0e0e0' }}>
         <Container maxWidth="lg">
-          {/* Search and Filter Bar */}
-          <Paper sx={{ p: 3, borderRadius: 2.5, boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-            <Grid container spacing={2} alignItems="center">
-              {/* Search */}
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  placeholder="Tìm kiếm sản phẩm..."
-                  value={searchQuery}
-                  onChange={handleSearch}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 1.5,
-                      backgroundColor: '#f5f5f5'
-                    }
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Search sx={{ color: '#999' }} />
-                      </InputAdornment>
-                    )
-                  }}
-                />
-              </Grid>
-              
-              {/* Category Filter */}
-              <Grid item xs={12} md={3}>
-                <FormControl fullWidth>
-                  <InputLabel>Danh mục</InputLabel>
-                  <Select
-                    value={category}
-                    label="Danh mục"
-                    onChange={handleCategoryChange}
-                    sx={{ borderRadius: 1.5 }}
-                  >
-                    {categories.map((cat) => (
-                      <MenuItem key={cat} value={cat === 'Tất cả' ? '' : cat}>
-                        {cat}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              
-              {/* Sort */}
-              <Grid item xs={12} md={3}>
-                <FormControl fullWidth>
-                  <InputLabel>Sắp xếp</InputLabel>
-                  <Select
-                    value={sortBy}
-                    label="Sắp xếp"
-                    onChange={handleSortChange}
-                    sx={{ borderRadius: 1.5 }}
-                  >
-                    {sortOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              
-              {/* View Mode and Filters */}
-              <Grid item xs={12} md={2}>
-                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+          <Grid container spacing={2} alignItems="center">
+            {/* Category Filter */}
+            <Grid item xs={12} md={4}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Danh mục</InputLabel>
+                <Select
+                  value={category}
+                  label="Danh mục"
+                  onChange={handleCategoryChange}
+                >
+                  {categories.map((cat) => (
+                    <MenuItem key={cat} value={cat === 'Tất cả' ? '' : cat}>
+                      {cat}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            {/* Sort */}
+            <Grid item xs={12} md={4}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Sắp xếp</InputLabel>
+                <Select
+                  value={sortBy}
+                  label="Sắp xếp"
+                  onChange={handleSortChange}
+                >
+                  {sortOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            {/* View Mode and Filters */}
+            <Grid item xs={12} md={4}>
+              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
                   <IconButton
                     onClick={() => setViewMode('grid')}
                     color={viewMode === 'grid' ? 'primary' : 'default'}
@@ -266,65 +269,8 @@ const Products = () => {
                   </IconButton>
                 </Box>
               </Grid>
-            </Grid>
-            
-            {/* Advanced Filters */}
-            <Collapse in={showFilters}>
-              <Divider sx={{ my: 2 }} />
-              <Grid container spacing={3}>
-                {/* Price Range */}
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                    Khoảng giá
-                  </Typography>
-                  <Slider
-                    value={priceRange}
-                    onChange={handlePriceRangeChange}
-                    valueLabelDisplay="auto"
-                    min={0}
-                    max={1000000}
-                    step={10000}
-                    valueLabelFormat={(value) => formatCurrency(value)}
-                  />
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="caption">
-                      {formatCurrency(priceRange[0])}
-                    </Typography>
-                    <Typography variant="caption">
-                      {formatCurrency(priceRange[1])}
-                    </Typography>
-                  </Box>
-                </Grid>
-                
-                {/* Special Filters */}
-                <Grid item xs={12} md={4}>
-                  <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                    Bộ lọc đặc biệt
-                  </Typography>
-                  <Stack>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={ecoFilter}
-                          onChange={(e) => setEcoFilter(e.target.checked)}
-                        />
-                      }
-                      label="Sản phẩm xanh"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={onSaleFilter}
-                          onChange={(e) => setOnSaleFilter(e.target.checked)}
-                        />
-                      }
-                      label="Đang giảm giá"
-                    />
-                  </Stack>
-                </Grid>
-              </Grid>
-            </Collapse>
-          </Paper>
+            </Box>
+          </Grid>
         </Container>
       </Box>
 
