@@ -56,11 +56,16 @@ function GamificationNotifications() {
           localStorage.removeItem('gamificationEvents')
         }
       } catch (error) {
+        // Silently suppress 401/403 errors during polling (auth not ready yet)
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          // Expected when auth not ready, don't log to console
+          return
+        }
         console.error('Error polling gamification updates:', error)
       }
     }
 
-    // Poll every 30 seconds
+    // Poll every 30 seconds only if user exists
     const interval = setInterval(pollGamificationUpdates, 30000)
     
     // Initial check
