@@ -26,6 +26,14 @@ injectStore(store)
 // Debug utility for clearing auth data
 import './utils/clearAuth'
 
+// Restore token from localStorage on app start (for page refresh)
+const token = localStorage.getItem('accessToken')
+if (token) {
+  import('./utils/authorizeAxios').then(module => {
+    module.default.defaults.headers.common['Authorization'] = `Bearer ${token}`
+  })
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <PersistGate persistor={persistor}>
