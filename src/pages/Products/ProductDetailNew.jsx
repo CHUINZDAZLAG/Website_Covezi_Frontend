@@ -41,46 +41,56 @@ const ProductDetailNew = () => {
   const fetchProductDetail = async () => {
     try {
       setLoading(true)
-      const response = await productAPI.getProductById(id)
+      console.log('🔄 Fetching product detail for ID:', id)
       
-      if (response?.data) {
-        setProduct(response.data)
+      const response = await productAPI.getProductDetail(id)
+      console.log('📦 Raw API Response:', response)
+      console.log('📦 Response.data:', response?.data)
+      console.log('📦 Response.product:', response?.product)
+      
+      if (response?.data || response?.product) {
+        // Response might be wrapped in data or product field
+        const productData = response.data || response.product || response
+        console.log('✅ Product data extracted:', productData)
+        console.log('🖼️ Images array:', productData?.images)
+        console.log('🖼️ Images count:', productData?.images?.length)
+        
+        setProduct(productData)
       } else {
-        // Fallback to mock data if API fails
-        const mockProduct = {
+        console.warn('⚠️ No product data in response:', response)
+        setProduct({
           _id: id,
-          name: 'COVEZI - Bộ Màu Nước "Tùm Lum Màu" Sáng Tạo Vô Hạn',
+          name: 'Sản phẩm không tìm thấy',
           images: ['/default-product.jpg'],
           socialLinks: {
             tiktok: 'https://tiktok.com/@covezi',
             shopee: 'https://shopee.vn/covezi',
             facebook: 'https://facebook.com/covezi'
           },
-          description: 'Sản phẩm Covezi',
+          description: 'Không tìm thấy thông tin sản phẩm',
           price: 0,
           discount: 0,
-          quantity: 0,
-          sold: 0,
           features: [],
           ecoMetrics: { sustainabilityScore: 0 },
           specifications: {},
           warranty: { duration: 12 }
-        }
-        setProduct(mockProduct)
+        })
       }
     } catch (error) {
-      console.error('Error fetching product detail:', error)
-      // Set minimal mock data on error
+      console.error('❌ Error fetching product detail:', error)
+      console.error('❌ Error message:', error.message)
+      console.error('❌ Error response:', error.response)
+      
       setProduct({
         _id: id,
-        name: 'Sản phẩm',
+        name: 'Lỗi tải sản phẩm',
         images: ['/default-product.jpg'],
         socialLinks: {
           tiktok: 'https://tiktok.com/@covezi',
           shopee: 'https://shopee.vn/covezi',
           facebook: 'https://facebook.com/covezi'
         },
-        description: 'Không tìm thấy thông tin',
+        description: 'Đã xảy ra lỗi khi tải thông tin sản phẩm. Vui lòng thử lại.',
         price: 0,
         discount: 0,
         features: [],
@@ -149,6 +159,7 @@ const ProductDetailNew = () => {
               }}
             >
               <Box sx={{ position: 'relative', mb: 3 }}>
+                {console.log('🎨 Rendering main image. Product images:', product.images, 'Selected index:', selectedImage)}
                 <img
                   src={product.images[selectedImage] || '/default-product.jpg'}
                   alt={product.name}
@@ -159,7 +170,11 @@ const ProductDetailNew = () => {
                     borderRadius: '12px'
                   }}
                   onError={(e) => {
+                    console.error('❌ Image failed to load:', e.target.src)
                     e.target.src = '/default-product.jpg'
+                  }}
+                  onLoad={() => {
+                    console.log('✅ Image loaded successfully:', product.images[selectedImage])
                   }}
                 />
                 
