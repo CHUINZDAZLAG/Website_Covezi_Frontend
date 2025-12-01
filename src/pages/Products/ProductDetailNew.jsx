@@ -21,6 +21,7 @@ import {
   Recycling
 } from '@mui/icons-material'
 import { useParams, useNavigate } from 'react-router-dom'
+import { productAPI } from '~/apis'
 import AppBar from '~/components/AppBar/AppBar'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 
@@ -40,68 +41,53 @@ const ProductDetailNew = () => {
   const fetchProductDetail = async () => {
     try {
       setLoading(true)
+      const response = await productAPI.getProductById(id)
       
-      // Mock product data
-      const mockProduct = {
+      if (response?.data) {
+        setProduct(response.data)
+      } else {
+        // Fallback to mock data if API fails
+        const mockProduct = {
+          _id: id,
+          name: 'COVEZI - Bộ Màu Nước "Tùm Lum Màu" Sáng Tạo Vô Hạn',
+          images: ['/default-product.jpg'],
+          socialLinks: {
+            tiktok: 'https://tiktok.com/@covezi',
+            shopee: 'https://shopee.vn/covezi',
+            facebook: 'https://facebook.com/covezi'
+          },
+          description: 'Sản phẩm Covezi',
+          price: 0,
+          discount: 0,
+          quantity: 0,
+          sold: 0,
+          features: [],
+          ecoMetrics: { sustainabilityScore: 0 },
+          specifications: {},
+          warranty: { duration: 12 }
+        }
+        setProduct(mockProduct)
+      }
+    } catch (error) {
+      console.error('Error fetching product detail:', error)
+      // Set minimal mock data on error
+      setProduct({
         _id: id,
-        name: 'COVEZI - Bộ Màu Nước "Tùm Lum Màu" Sáng Tạo Vô Hạn',
-        images: [
-          '/eco-product-1.jpg',
-          '/eco-product-2.jpg',
-          '/eco-product-3.jpg'
-        ],
+        name: 'Sản phẩm',
+        images: ['/default-product.jpg'],
         socialLinks: {
           tiktok: 'https://tiktok.com/@covezi',
           shopee: 'https://shopee.vn/covezi',
           facebook: 'https://facebook.com/covezi'
         },
-        description: 'Bộ 12 màu sơn nước Covezi được thiết kế đặc biệt cho những người yêu thích sáng tạo. Sản phẩm được làm từ nguyên liệu thân thiện với môi trường, không độc hại cho người sử dụng.',
-        price: 728000,
-        discount: 20,
-        quantity: 150,
-        sold: 320,
-        features: [
-          'Nguyên liệu tự nhiên 100%',
-          'Không độc hại',
-          'Bền lâu',
-          'Màu sắc tươi sáng',
-          'Dễ sử dụng'
-        ],
-        ecoMetrics: {
-          sustainabilityScore: 92,
-          carbonFootprint: 1.2,
-          recyclable: true,
-          biodegradable: true,
-          waterUsage: 8,
-          energyEfficiency: 'A+'
-        },
-        specifications: {
-          material: 'Nguyên liệu tự nhiên',
-          weight: '250g',
-          dimensions: '15 x 10 x 3 cm',
-          colors: 12,
-          shelfLife: '24 tháng'
-        },
-        shipping: {
-          freeShipping: true,
-          fee: 0,
-          estimatedDays: '2-3 ngày'
-        },
-        warranty: {
-          duration: 12,
-          description: 'Bảo hành 12 tháng từ ngày mua'
-        },
-        benefits: [
-          'Hỗ trợ phát triển sáng tạo',
-          'An toàn cho trẻ em',
-          'Không gây dị ứng da',
-          'Giúp giảm căng thẳng'
-        ]
-      }
-      
-      setProduct(mockProduct)
-    } catch (error) {
-      console.error('Error fetching product detail:', error)
+        description: 'Không tìm thấy thông tin',
+        price: 0,
+        discount: 0,
+        features: [],
+        ecoMetrics: { sustainabilityScore: 0 },
+        specifications: {},
+        warranty: { duration: 12 }
+      })
     } finally {
       setLoading(false)
     }
@@ -367,22 +353,28 @@ const ProductDetailNew = () => {
 
               {/* Action Buttons */}
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 4 }}>
-                <Button
-                  variant="contained"
-                  size="large"
-                  startIcon={<ShoppingCart />}
+                <IconButton
                   onClick={addToCart}
                   sx={{
+                    width: 60,
+                    height: 60,
                     bgcolor: '#32778E',
                     color: 'white',
-                    fontWeight: 'bold',
-                    py: 1.5,
-                    flex: 1,
-                    '&:hover': { bgcolor: '#1f4d63', transform: 'translateY(-2px)', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }
+                    fontSize: '1.8rem',
+                    borderRadius: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s',
+                    '&:hover': {
+                      bgcolor: '#1f4d63',
+                      transform: 'scale(1.1)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                    }
                   }}
                 >
-                  Thêm vào giỏ hàng
-                </Button>
+                  <ShoppingCart />
+                </IconButton>
               </Stack>
 
               {/* Info Cards */}
