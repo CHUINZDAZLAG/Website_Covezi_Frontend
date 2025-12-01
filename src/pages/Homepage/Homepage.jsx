@@ -33,7 +33,6 @@ import { useEffect, useState } from 'react'
 import { homepageAPI } from '~/apis'
 import AppBar from '~/components/AppBar/AppBar'
 import CoveziCover from '~/assets/Cover_Covezi.png'
-import CoveziTreeCover from '~/assets/Covezi_Tree_Cover.png'
 import CoveziTree from '~/assets/Covezi_Tree.png'
 
 const Homepage = () => {
