@@ -241,20 +241,21 @@ function AppBar() {
                 </Menu>
               </>
             ) : (
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 <Button
                   component={Link}
                   to="/login"
                   variant="outlined"
                   size="small"
                   sx={{
-                    color: 'white',
-                    borderColor: 'rgba(255,255,255,0.5)',
+                    color: '#32778E',
+                    borderColor: '#32778E',
                     textTransform: 'none',
                     borderRadius: 2,
+                    fontWeight: 'bold',
                     '&:hover': {
-                      borderColor: 'white',
-                      bgcolor: 'rgba(255,255,255,0.1)'
+                      borderColor: '#1f4d63',
+                      bgcolor: 'rgba(50, 119, 142, 0.1)'
                     }
                   }}
                 >
@@ -267,13 +268,13 @@ function AppBar() {
                     variant="contained"
                     size="small"
                     sx={{
-                      bgcolor: 'white',
-                      color: '#2e7d32',
+                      bgcolor: '#32778E',
+                      color: 'white',
                       textTransform: 'none',
                       borderRadius: 2,
                       fontWeight: 'bold',
                       '&:hover': {
-                        bgcolor: 'rgba(255,255,255,0.9)'
+                        bgcolor: '#1f4d63'
                       }
                     }}
                   >
