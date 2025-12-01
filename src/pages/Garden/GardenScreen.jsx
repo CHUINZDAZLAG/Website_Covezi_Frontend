@@ -229,7 +229,7 @@ const GardenScreen = () => {
       <Box sx={{ backgroundColor: 'transparent', minHeight: 'auto' }}>
         <Box sx={{ maxWidth: 1200, margin: '0 auto 24px', paddingX: 2, mt: 4, mb: 4 }}>
           <Box sx={{ mb: 4 }}>
-            <Typography variant="h4" component="h1" sx={{ color: '#2D5016', fontWeight: 'bold' }}>
+            <Typography variant="h4" component="h1" sx={{ color: '#32778E', fontWeight: 'bold' }}>
               Vườn của tôi
             </Typography>
           </Box>
