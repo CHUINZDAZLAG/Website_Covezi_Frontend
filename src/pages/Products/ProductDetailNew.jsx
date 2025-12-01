@@ -10,11 +10,6 @@ import {
   Divider,
   Stack,
   Paper,
-  Breadcrumbs,
-  Link,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Card,
   CardContent
 } from '@mui/material'
@@ -23,14 +18,9 @@ import {
   LocalShipping,
   Security,
   Nature,
-  Recycling,
-  ExpandMore,
-  NavigateNext,
-  ArrowBack,
-  Download
+  Recycling
 } from '@mui/icons-material'
 import { useParams, useNavigate } from 'react-router-dom'
-import { productAPI } from '~/apis'
 import AppBar from '~/components/AppBar/AppBar'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 
@@ -55,18 +45,21 @@ const ProductDetailNew = () => {
       const mockProduct = {
         _id: id,
         name: 'COVEZI - Bộ Màu Nước "Tùm Lum Màu" Sáng Tạo Vô Hạn',
-        description: 'Bộ 12 màu sơn nước Covezi được thiết kế đặc biệt cho những người yêu thích sáng tạo. Sản phẩm được làm từ nguyên liệu thân thiện với môi trường, không độc hại cho người sử dụng.',
-        price: 728000,
-        discount: 20,
-        quantity: 150,
-        sold: 320,
-        rating: 4.5,
-        reviewCount: 89,
         images: [
           '/eco-product-1.jpg',
           '/eco-product-2.jpg',
           '/eco-product-3.jpg'
         ],
+        socialLinks: {
+          tiktok: 'https://tiktok.com/@covezi',
+          shopee: 'https://shopee.vn/covezi',
+          facebook: 'https://facebook.com/covezi'
+        },
+        description: 'Bộ 12 màu sơn nước Covezi được thiết kế đặc biệt cho những người yêu thích sáng tạo. Sản phẩm được làm từ nguyên liệu thân thiện với môi trường, không độc hại cho người sử dụng.',
+        price: 728000,
+        discount: 20,
+        quantity: 150,
+        sold: 320,
         features: [
           'Nguyên liệu tự nhiên 100%',
           'Không độc hại',
@@ -75,7 +68,6 @@ const ProductDetailNew = () => {
           'Dễ sử dụng'
         ],
         ecoMetrics: {
-          overallRating: 4.5,
           sustainabilityScore: 92,
           carbonFootprint: 1.2,
           recyclable: true,
@@ -104,11 +96,6 @@ const ProductDetailNew = () => {
           'An toàn cho trẻ em',
           'Không gây dị ứng da',
           'Giúp giảm căng thẳng'
-        ],
-        relatedProducts: [
-          { _id: '2', name: 'Bộ Bút Chì Eco-Friendly', price: 150000, image: '/eco-pencil.jpg' },
-          { _id: '3', name: 'Giấy Vẽ Tái Chế', price: 85000, image: '/eco-paper.jpg' },
-          { _id: '4', name: 'Pallet Gỗ Tự Nhiên', price: 120000, image: '/eco-palette.jpg' }
         ]
       }
       
@@ -142,9 +129,13 @@ const ProductDetailNew = () => {
     return <PageLoadingSpinner />
   }
 
-  const finalPrice = product.discount > 0 
-    ? product.price * (1 - product.discount / 100) 
+  const finalPrice = product.discount > 0
+    ? product.price * (1 - product.discount / 100)
     : product.price
+
+  if (loading || !product) {
+    return <PageLoadingSpinner />
+  }
 
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' }}>
@@ -153,14 +144,13 @@ const ProductDetailNew = () => {
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Back Button */}
         <Button
-          startIcon={<ArrowBack />}
           onClick={() => navigate('/products')}
           sx={{ mb: 3, color: '#32778E', fontWeight: 'bold' }}
         >
-          Quay lại
+          ← Quay lại
         </Button>
 
-        {/* Main Product Section */}
+        {/* Main Product Section - Simplified */}
         <Grid container spacing={4} sx={{ mb: 6 }}>
           {/* Images */}
           <Grid item xs={12} md={5}>
@@ -245,35 +235,112 @@ const ProductDetailNew = () => {
             </Paper>
           </Grid>
 
-          {/* Product Info */}
+          {/* Product Info - Simplified */}
           <Grid item xs={12} md={7}>
             <Box>
-              {/* Title & Rating */}
+              {/* Title */}
               <Typography
                 variant="h4"
                 sx={{
                   fontWeight: 'bold',
                   color: '#32778E',
-                  mb: 2,
+                  mb: 3,
                   fontSize: { xs: '1.8rem', md: '2.2rem' }
                 }}
               >
                 {product.name}
               </Typography>
 
-              <Stack direction="row" spacing={2} sx={{ mb: 3, alignItems: 'center' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Typography sx={{ color: '#FFB800', fontWeight: 'bold', mr: 1 }}>★★★★★</Typography>
-                  <Typography sx={{ color: '#666' }}>({product.reviewCount} đánh giá)</Typography>
-                </Box>
-                <Chip label={`Đã bán ${product.sold}`} variant="outlined" />
-              </Stack>
+              <Divider sx={{ my: 3 }} />
+
+              {/* Social Media Links - Circular Buttons */}
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#32778E', mb: 2 }}>
+                  Kết nối với chúng tôi
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                  {/* TikTok */}
+                  <IconButton
+                    href={product.socialLinks?.tiktok}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      width: 60,
+                      height: 60,
+                      borderRadius: '50%',
+                      bgcolor: '#000000',
+                      color: 'white',
+                      fontSize: '1.8rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.3s',
+                      '&:hover': {
+                        transform: 'scale(1.1)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                      }
+                    }}
+                  >
+                    ♪
+                  </IconButton>
+
+                  {/* Shopee */}
+                  <IconButton
+                    href={product.socialLinks?.shopee}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      width: 60,
+                      height: 60,
+                      borderRadius: '50%',
+                      bgcolor: '#EE4D2D',
+                      color: 'white',
+                      fontSize: '1.8rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.3s',
+                      '&:hover': {
+                        transform: 'scale(1.1)',
+                        boxShadow: '0 4px 12px rgba(238, 77, 45, 0.3)'
+                      }
+                    }}
+                  >
+                    🛍
+                  </IconButton>
+
+                  {/* Facebook */}
+                  <IconButton
+                    href={product.socialLinks?.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      width: 60,
+                      height: 60,
+                      borderRadius: '50%',
+                      bgcolor: '#1877F2',
+                      color: 'white',
+                      fontSize: '1.8rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.3s',
+                      '&:hover': {
+                        transform: 'scale(1.1)',
+                        boxShadow: '0 4px 12px rgba(24, 119, 242, 0.3)'
+                      }
+                    }}
+                  >
+                    📘
+                  </IconButton>
+                </Stack>
+              </Box>
 
               <Divider sx={{ my: 3 }} />
 
               {/* Price */}
-              <Box sx={{ mb: 3 }}>
-                <Stack direction="row" spacing={2} sx={{ alignItems: 'center', mb: 1 }}>
+              <Box sx={{ mb: 4 }}>
+                <Stack direction="row" spacing={2} sx={{ alignItems: 'center', mb: 2 }}>
                   <Typography
                     variant="h5"
                     sx={{
@@ -296,26 +363,6 @@ const ProductDetailNew = () => {
                     </Typography>
                   )}
                 </Stack>
-                <Typography sx={{ color: '#4caf50', fontWeight: 'bold', fontSize: '0.95rem' }}>
-                  ✓ Tặng voucher cho khách hàng mới
-                </Typography>
-              </Box>
-
-              <Divider sx={{ my: 3 }} />
-
-              {/* Benefits */}
-              <Box sx={{ mb: 4 }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#32778E', mb: 2 }}>
-                  🌿 Lợi ích sản phẩm
-                </Typography>
-                <Stack spacing={1}>
-                  {product.benefits?.map((benefit, idx) => (
-                    <Typography key={idx} sx={{ display: 'flex', alignItems: 'center', color: '#555' }}>
-                      <Box sx={{ mr: 1, color: '#4caf50', fontWeight: 'bold' }}>✓</Box>
-                      {benefit}
-                    </Typography>
-                  ))}
-                </Stack>
               </Box>
 
               {/* Action Buttons */}
@@ -335,19 +382,6 @@ const ProductDetailNew = () => {
                   }}
                 >
                   Thêm vào giỏ hàng
-                </Button>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  sx={{
-                    borderColor: '#32778E',
-                    color: '#32778E',
-                    fontWeight: 'bold',
-                    py: 1.5,
-                    '&:hover': { bgcolor: 'rgba(50, 119, 142, 0.1)' }
-                  }}
-                >
-                  <Download sx={{ mr: 1 }} /> Tải Brochure
                 </Button>
               </Stack>
 
@@ -444,96 +478,36 @@ const ProductDetailNew = () => {
         <Box sx={{ mb: 6 }}>
           <Card sx={{ borderRadius: 3, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
             <CardContent>
-              <Accordion defaultExpanded>
-                <AccordionSummary expandIcon={<ExpandMore />}>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#32778E' }}>
-                    📝 Mô tả sản phẩm
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Typography sx={{ color: '#555', lineHeight: 1.8, textAlign: 'justify' }}>
-                    {product.description}
-                  </Typography>
-                </AccordionDetails>
-              </Accordion>
-
-              <Accordion>
-                <AccordionSummary expandIcon={<ExpandMore />}>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#32778E' }}>
-                    🎁 Tính năng chính
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Stack spacing={1}>
-                    {product.features?.map((feature, idx) => (
-                      <Typography key={idx} sx={{ display: 'flex', alignItems: 'center', color: '#555' }}>
-                        <Box sx={{ mr: 2, color: '#32778E', fontWeight: 'bold' }}>→</Box>
-                        {feature}
-                      </Typography>
-                    ))}
-                  </Stack>
-                </AccordionDetails>
-              </Accordion>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#32778E', mb: 2 }}>
+                📝 Mô tả sản phẩm
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <Typography sx={{ color: '#555', lineHeight: 1.8, textAlign: 'justify' }}>
+                {product.description}
+              </Typography>
             </CardContent>
           </Card>
         </Box>
 
-        {/* Related Products */}
-        {product.relatedProducts && product.relatedProducts.length > 0 && (
-          <Box>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 'bold',
-                color: '#32778E',
-                mb: 3,
-                fontSize: '1.8rem'
-              }}
-            >
-              Sản phẩm liên quan
-            </Typography>
-
-            <Grid container spacing={3}>
-              {product.relatedProducts.map((relProduct, idx) => (
-                <Grid item xs={12} sm={6} md={4} key={idx}>
-                  <Card
-                    sx={{
-                      borderRadius: 3,
-                      overflow: 'hidden',
-                      transition: 'all 0.3s',
-                      cursor: 'pointer',
-                      '&:hover': {
-                        transform: 'translateY(-8px)',
-                        boxShadow: '0 12px 24px rgba(0,0,0,0.15)'
-                      },
-                      background: 'white'
-                    }}
-                    onClick={() => navigate(`/products/${relProduct._id}`)}
-                  >
-                    <Box sx={{ height: '200px', overflow: 'hidden', bgcolor: '#f0f0f0' }}>
-                      <img
-                        src={relProduct.image}
-                        alt={relProduct.name}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        onError={(e) => {
-                          e.target.src = '/default-product.jpg'
-                        }}
-                      />
-                    </Box>
-                    <CardContent>
-                      <Typography sx={{ fontWeight: 'bold', color: '#32778E', mb: 1, minHeight: '50px' }}>
-                        {relProduct.name}
-                      </Typography>
-                      <Typography sx={{ color: '#4caf50', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                        {formatCurrency(relProduct.price)}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-        )}
+        {/* Features Section */}
+        <Box sx={{ mb: 6 }}>
+          <Card sx={{ borderRadius: 3, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#32778E', mb: 2 }}>
+                🎁 Tính năng chính
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <Stack spacing={1}>
+                {product.features?.map((feature, idx) => (
+                  <Typography key={idx} sx={{ display: 'flex', alignItems: 'center', color: '#555' }}>
+                    <Box sx={{ mr: 2, color: '#32778E', fontWeight: 'bold' }}>→</Box>
+                    {feature}
+                  </Typography>
+                ))}
+              </Stack>
+            </CardContent>
+          </Card>
+        </Box>
       </Container>
     </Box>
   )
