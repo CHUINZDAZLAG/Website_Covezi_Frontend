@@ -52,12 +52,12 @@ function AdminDashboard() {
         {/* Header */}
         <Box sx={{ mb: 4 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <Dashboard sx={{ fontSize: '2.5rem', color: '#B6349A', mr: 2 }} />
+            <Dashboard sx={{ fontSize: '2.5rem', color: '#00897B', mr: 2 }} />
             <Typography
               variant='h3'
               sx={{
                 fontWeight: 900,
-                background: 'linear-gradient(135deg, #B6349A 0%, #FF6B7A 100%)',
+                background: 'linear-gradient(135deg, #00897B 0%, #4CAF50 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 fontSize: { xs: '1.8rem', md: '2.5rem' }
@@ -84,8 +84,8 @@ function AdminDashboard() {
             mb: 3,
             borderRadius: 2.5,
             overflow: 'hidden',
-            boxShadow: '0 4px 16px rgba(182, 52, 154, 0.08)',
-            border: '1px solid rgba(182, 52, 154, 0.1)'
+            boxShadow: '0 4px 16px rgba(0, 137, 123, 0.08)',
+            border: '1px solid rgba(0, 137, 123, 0.1)'
           }}
         >
           <Tabs
@@ -105,17 +105,17 @@ function AdminDashboard() {
                 py: 2,
                 px: 2.5,
                 '&:hover': {
-                  color: '#B6349A',
-                  backgroundColor: 'rgba(182, 52, 154, 0.05)'
+                  color: '#00897B',
+                  backgroundColor: 'rgba(0, 137, 123, 0.05)'
                 }
               },
               '& .MuiTab-root.Mui-selected': {
-                color: '#B6349A',
+                color: '#00897B',
                 fontWeight: 700
               },
               '& .MuiTabs-indicator': {
                 height: 3,
-                background: 'linear-gradient(90deg, #B6349A 0%, #FF6B7A 100%)',
+                background: 'linear-gradient(90deg, #00897B 0%, #4CAF50 100%)',
                 borderRadius: '2px 2px 0 0'
               }
             }}

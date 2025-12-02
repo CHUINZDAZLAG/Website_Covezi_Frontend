@@ -279,8 +279,8 @@ const AdminProductManagement = () => {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-              <Inventory2 sx={{ fontSize: '2rem', color: '#B6349A', mr: 1.5 }} />
-              <Typography variant="h4" sx={{ fontWeight: 900, color: '#B6349A' }}>
+              <Inventory2 sx={{ fontSize: '2rem', color: '#00897B', mr: 1.5 }} />
+              <Typography variant="h4" sx={{ fontWeight: 900, color: '#00897B' }}>
                 Quản lý Sản phẩm
               </Typography>
             </Box>
