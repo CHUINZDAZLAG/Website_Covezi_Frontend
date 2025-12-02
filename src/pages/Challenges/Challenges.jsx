@@ -226,7 +226,7 @@ function Challenges() {
       >
         <CardMedia
           component="img"
-          image={challenge.image || 'https://placehold.co/400x200?text=Challenge'}
+          image={challenge.image || '/default-product.svg'}
           alt={challenge.title}
           sx={{ 
             width: '100%',
@@ -236,6 +236,9 @@ function Challenges() {
             transition: 'transform 0.3s'
           }}
           onClick={() => navigate(`/challenges/${challenge._id}`)}
+          onError={(e) => {
+            e.target.src = '/default-product.svg'
+          }}
         />
       </Box>
 

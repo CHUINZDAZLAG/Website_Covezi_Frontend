@@ -192,8 +192,11 @@ const ProductListReal = () => {
                         <CardMedia
                           component="img"
                           height="200"
-                          image={product.cover || '/default-product.png'}
+                          image={product.cover || product.thumbnail || '/default-product.svg'}
                           alt={product.name}
+                          onError={(e) => {
+                            e.target.src = '/default-product.svg'
+                          }}
                           sx={{
                             objectFit: 'cover',
                             cursor: 'pointer',
