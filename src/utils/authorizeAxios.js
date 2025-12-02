@@ -3,6 +3,7 @@ import { toast } from 'react-toastify'
 import { interceptorLoadingElements } from '~/utils/formatters'
 import { refreshTokenAPI } from '~/apis'
 import { logoutUserAPI } from '~/redux/user/userSlice'
+import { API_ROOT } from '~/utils/constants'
 
 /**
  * Store injection technique for using Redux store outside components
@@ -45,7 +46,7 @@ const getValidToken = () => {
 
 // Create custom Axios instance with shared configuration
 let authorizedAxiosInstance = axios.create({
-  baseURL: 'http://localhost:8017'
+  baseURL: API_ROOT
 })
 // Request timeout: 10 minutes
 authorizedAxiosInstance.defaults.timeout = 1000 * 60 * 10
