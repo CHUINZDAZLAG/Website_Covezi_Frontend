@@ -89,9 +89,11 @@ const ChatBot = () => {
       setSessionId(result.data._id)
       setMessages([])
     } catch (error) {
-      console.error('Failed to initialize chat:', error)
-      // Silently fail - chat will show offline message
-      setSessionId('offline_mode')
+      console.warn('Chat API unavailable, using offline mode')
+      // Use mock/offline mode with generated session ID
+      setSessionId(`offline_${Date.now()}`)
+      setMessages([])
+      toast.info('🐱 ZiZi is offline, but you can still chat!')
     }
   }
 

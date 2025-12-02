@@ -44,7 +44,9 @@ const getValidToken = () => {
 }
 
 // Create custom Axios instance with shared configuration
-let authorizedAxiosInstance = axios.create()
+let authorizedAxiosInstance = axios.create({
+  baseURL: 'http://localhost:8017'
+})
 // Request timeout: 10 minutes
 authorizedAxiosInstance.defaults.timeout = 1000 * 60 * 10
 // Enable credentials to send cookies with requests (for JWT tokens in httpOnly cookies)
