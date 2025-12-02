@@ -430,6 +430,7 @@ const ChatBot = () => {
             color: 'white',
             boxShadow: '0 4px 12px rgba(255, 107, 122, 0.4)',
             position: 'relative',
+            padding: 0,
             '&:hover': {
               boxShadow: '0 6px 16px rgba(255, 107, 122, 0.6)',
               transform: 'scale(1.05)'
@@ -437,7 +438,14 @@ const ChatBot = () => {
             transition: 'all 0.3s ease'
           }}
         >
-          <ChatBotIcon sx={{ fontSize: 28 }} />
+          <Avatar
+            src={CoveziAIAvatar}
+            sx={{
+              width: 60,
+              height: 60,
+              border: '2px solid white'
+            }}
+          />
         </IconButton>
       </Tooltip>
 
