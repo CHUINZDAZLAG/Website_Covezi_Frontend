@@ -57,6 +57,8 @@ function Notifications() {
   useEffect(() => {
     dispatch(fetchInvitationsAPI())
 
+    if (!socketIoInstance) return
+
     // Create a function handling event reali-time
     const onReceiveNewInvitaion = (invitation) => {
       // Nếu thằng user đang đăng nhập hiện tại mà chúng ta lưu trong redux chính là thằng invitee trong bản ghi invitation

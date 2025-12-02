@@ -44,7 +44,7 @@ const ChatBot = () => {
   useEffect(() => {
     if (isOpen && !sessionId && currentUser) {
       // Connect to socket when opening chat
-      if (!socketIoInstance.connected) {
+      if (socketIoInstance && !socketIoInstance.connected) {
         socketIoInstance.connect()
       }
       initializeChat()
@@ -53,6 +53,10 @@ const ChatBot = () => {
 
   // Listen for AI streaming responses
   useEffect(() => {
+    if (!socketIoInstance) {
+      return
+    }
+
     socketIoInstance.on('chat:stream', (data) => {
       setMessages(prev => {
         const lastMessage = prev[prev.length - 1]

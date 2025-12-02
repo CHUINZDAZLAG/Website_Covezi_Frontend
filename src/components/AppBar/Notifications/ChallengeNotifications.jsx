@@ -48,7 +48,7 @@ function ChallengeNotifications() {
 
   // Listen for challenge notifications from backend via Socket.io
   useEffect(() => {
-    if (!currentUser) return
+    if (!currentUser || !socketIoInstance) return
 
     // Load existing notifications from localStorage
     const existingNotifications = getChallengeNotifications()
