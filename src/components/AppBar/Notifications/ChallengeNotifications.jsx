@@ -74,12 +74,25 @@ function ChallengeNotifications() {
       }
     }
 
+    // Listen for challenge like event
+    const handleChallengeLike = (data) => {
+      const { notification, creatorId } = data
+      // Only notify the creator
+      if (creatorId === currentUser._id) {
+        addChallengeNotification(notification)
+        setNotifications(prev => [notification, ...prev])
+        setUnreadCount(prev => prev + 1)
+      }
+    }
+
     socketIoInstance.on('CHALLENGE_CREATED', handleChallengeCreated)
     socketIoInstance.on('CHALLENGE_PARTICIPANT_JOINED', handleChallengeParticipant)
+    socketIoInstance.on('CHALLENGE_LIKE', handleChallengeLike)
 
     return () => {
       socketIoInstance.off('CHALLENGE_CREATED', handleChallengeCreated)
       socketIoInstance.off('CHALLENGE_PARTICIPANT_JOINED', handleChallengeParticipant)
+      socketIoInstance.off('CHALLENGE_LIKE', handleChallengeLike)
     }
   }, [currentUser])
 
@@ -179,6 +192,13 @@ function ChallengeNotifications() {
                     <Box sx={{ pt: 0.5 }}>
                       {notification.type === 'challenge_created' ? (
                         <EmojiEvents sx={{ color: '#FFD700', fontSize: 28 }} />
+                      ) : notification.type === 'challenge_like' ? (
+                        <Avatar
+                          src={notification.likerAvatar}
+                          sx={{ width: 32, height: 32 }}
+                        >
+                          {notification.likerName?.[0]}
+                        </Avatar>
                       ) : (
                         <Avatar
                           src={notification.participantAvatar}
@@ -237,6 +257,16 @@ function ChallengeNotifications() {
                             label={`${notification.participantCount || 1} participant${(notification.participantCount || 1) !== 1 ? 's' : ''}`}
                             size="small"
                             sx={{ fontSize: '11px' }}
+                          />
+                        </Box>
+                      )}
+
+                      {notification.type === 'challenge_like' && (
+                        <Box sx={{ mb: 0.5 }}>
+                          <Chip
+                            label={`${notification.likeCount || 1} like${(notification.likeCount || 1) !== 1 ? 's' : ''}`}
+                            size="small"
+                            sx={{ fontSize: '11px', backgroundColor: '#FFE6E6', color: '#FF6B7A' }}
                           />
                         </Box>
                       )}
