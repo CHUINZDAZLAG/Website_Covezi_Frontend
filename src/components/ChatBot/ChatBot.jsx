@@ -43,6 +43,10 @@ const ChatBot = () => {
   // Initialize chat session
   useEffect(() => {
     if (isOpen && !sessionId && currentUser) {
+      // Connect to socket when opening chat
+      if (!socketIoInstance.connected) {
+        socketIoInstance.connect()
+      }
       initializeChat()
     }
   }, [isOpen, currentUser, sessionId])
