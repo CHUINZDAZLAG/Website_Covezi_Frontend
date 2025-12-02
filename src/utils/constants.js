@@ -1,16 +1,14 @@
-let apiRoot = ''
+// Production backend URL - always use this in production
+const PRODUCTION_API = 'https://website-covezi-backend-1.onrender.com'
+const LOCAL_API = 'http://localhost:8017'
 
-// Use import.meta.env instead of process.env for Vite
-if (import.meta.env.DEV) {
-  apiRoot = import.meta.env.VITE_API_URL || 'http://localhost:8017'
-}
-if (import.meta.env.PROD) {
-  apiRoot = import.meta.env.VITE_API_URL || 'https://website-covezi-backend-1.onrender.com'
-}
+// Detect environment and set API root
+// In Vite: import.meta.env.DEV is true in dev, false in production build
+let apiRoot = import.meta.env.DEV ? LOCAL_API : PRODUCTION_API
 
-// Fallback if apiRoot is still empty (should not happen)
-if (!apiRoot) {
-  apiRoot = 'https://website-covezi-backend-1.onrender.com'
+// Allow override via env variable
+if (import.meta.env.VITE_API_URL) {
+  apiRoot = import.meta.env.VITE_API_URL
 }
 
 export const API_ROOT = apiRoot
