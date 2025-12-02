@@ -24,6 +24,7 @@ import { socketIoInstance } from '~/socketClient'
 import chatAPI from '~/apis/chatAPI'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
+import CoveziAIAvatar from '~/assets/Covezi_AI_Avatar.png'
 
 const ChatBot = () => {
   const currentUser = useSelector(selectCurrentUser)
@@ -182,7 +183,14 @@ const ChatBot = () => {
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <ChatBotIcon />
+              <Avatar
+                src={CoveziAIAvatar}
+                sx={{
+                  width: 40,
+                  height: 40,
+                  background: 'linear-gradient(135deg, #FF6B7A 0%, #FF8C3C 100%)'
+                }}
+              />
               <Box>
                 <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
                   Covezi AI Assistant
@@ -314,15 +322,13 @@ const ChatBot = () => {
                   >
                     {msg.role === 'assistant' && (
                       <Avatar
+                        src={CoveziAIAvatar}
                         sx={{
                           width: 28,
                           height: 28,
-                          background: 'linear-gradient(135deg, #FF6B7A 0%, #FF8C3C 100%)',
-                          fontSize: '1rem'
+                          background: 'linear-gradient(135deg, #FF6B7A 0%, #FF8C3C 100%)'
                         }}
-                      >
-                        🤖
-                      </Avatar>
+                      />
                     )}
                     <Paper
                       sx={{
