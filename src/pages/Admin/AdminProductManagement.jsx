@@ -32,10 +32,12 @@ import {
   Edit,
   Delete,
   Upload,
-  Search
+  Search,
+  Inventory2
 } from '@mui/icons-material'
 import { productAPI } from '~/apis'
 import { toast } from 'react-toastify'
+import CoveziBackground from '~/assets/Cover_Covezi.png'
 
 const AdminProductManagement = () => {
   const fileInputRef = useRef(null)
@@ -266,16 +268,22 @@ const AdminProductManagement = () => {
   return (
     <Box sx={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f8f9ff 0%, #fff5f0 100%)',
+      backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url(${CoveziBackground})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       pb: 4
     }}>
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 900, color: '#B6349A', mb: 0.5 }}>
-              📦 Quản lý Sản phẩm
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+              <Inventory2 sx={{ fontSize: '2rem', color: '#B6349A', mr: 1.5 }} />
+              <Typography variant="h4" sx={{ fontWeight: 900, color: '#B6349A' }}>
+                Quản lý Sản phẩm
+              </Typography>
+            </Box>
             <Typography variant="body2" sx={{ color: '#999', fontWeight: 500 }}>
               Quản lý tất cả sản phẩm của bạn
             </Typography>

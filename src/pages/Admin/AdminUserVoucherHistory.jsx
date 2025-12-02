@@ -34,7 +34,9 @@ import CloseIcon from '@mui/icons-material/Close'
 import BlockIcon from '@mui/icons-material/Block'
 import SearchIcon from '@mui/icons-material/Search'
 import DeleteIcon from '@mui/icons-material/Delete'
+import { History } from '@mui/icons-material'
 import { API_ENDPOINT } from '~/apis'
+import CoveziBackground from '~/assets/Cover_Covezi.png'
 
 function AdminUserVoucherHistory() {
   const [stats, setStats] = useState(null)

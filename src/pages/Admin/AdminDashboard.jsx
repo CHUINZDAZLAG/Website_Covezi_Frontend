@@ -9,8 +9,11 @@ import {
   Inventory2,
   EmojiEvents,
   History,
-  People
+  People,
+  Dashboard,
+  Settings
 } from '@mui/icons-material'
+import CoveziBackground from '~/assets/Cover_Covezi.png'
 
 function TabPanel({ children, value, index }) {
   return (
@@ -28,36 +31,41 @@ function AdminDashboard() {
   }
 
   const tabs = [
-    { label: '👥 Tài khoản', icon: <People sx={{ fontSize: 20, mr: 1 }} /> },
-    { label: '📦 Sản phẩm', icon: <Inventory2 sx={{ fontSize: 20, mr: 1 }} /> },
-    { label: '🎯 Thử thách', icon: <EmojiEvents sx={{ fontSize: 20, mr: 1 }} /> },
-    { label: '⚙️ Cấu hình Voucher', icon: null },
-    { label: '📜 Lịch sử Voucher', icon: <History sx={{ fontSize: 20, mr: 1 }} /> }
+    { label: 'Tài khoản', icon: <People sx={{ fontSize: 20, mr: 1 }} /> },
+    { label: 'Sản phẩm', icon: <Inventory2 sx={{ fontSize: 20, mr: 1 }} /> },
+    { label: 'Thử thách', icon: <EmojiEvents sx={{ fontSize: 20, mr: 1 }} /> },
+    { label: 'Cấu hình Voucher', icon: <Settings sx={{ fontSize: 20, mr: 1 }} /> },
+    { label: 'Lịch sử Voucher', icon: <History sx={{ fontSize: 20, mr: 1 }} /> }
   ]
 
   return (
     <Box sx={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f8f9ff 0%, #fff5f0 100%)',
+      backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url(${CoveziBackground})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       pb: 4,
       pt: 3
     }}>
       <Container maxWidth="lg">
         {/* Header */}
         <Box sx={{ mb: 4 }}>
-          <Typography
-            variant='h3'
-            sx={{
-              fontWeight: 900,
-              background: 'linear-gradient(135deg, #B6349A 0%, #FF6B7A 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              mb: 1,
-              fontSize: { xs: '1.8rem', md: '2.5rem' }
-            }}
-          >
-            📊 Admin Dashboard
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <Dashboard sx={{ fontSize: '2.5rem', color: '#B6349A', mr: 2 }} />
+            <Typography
+              variant='h3'
+              sx={{
+                fontWeight: 900,
+                background: 'linear-gradient(135deg, #B6349A 0%, #FF6B7A 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontSize: { xs: '1.8rem', md: '2.5rem' }
+              }}
+            >
+              Admin Dashboard
+            </Typography>
+          </Box>
           <Typography
             variant='body1'
             sx={{
@@ -113,7 +121,18 @@ function AdminDashboard() {
             }}
           >
             {tabs.map((tab, index) => (
-              <Tab key={index} label={tab.label} />
+              <Tab 
+                key={index} 
+                icon={tab.icon}
+                label={tab.label}
+                iconPosition="start"
+                sx={{
+                  '& .MuiTab-iconWrapper': {
+                    marginBottom: '0px !important',
+                    marginRight: '8px'
+                  }
+                }}
+              />
             ))}
           </Tabs>
         </Paper>

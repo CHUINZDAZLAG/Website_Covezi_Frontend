@@ -45,6 +45,7 @@ import {
 } from '@mui/icons-material'
 import { adminUserManagementAPI } from '~/apis/index'
 import { toast } from 'react-toastify'
+import CoveziBackground from '~/assets/Cover_Covezi.png'
 
 const AdminAccountManagement = () => {
   const [accounts, setAccounts] = useState([])

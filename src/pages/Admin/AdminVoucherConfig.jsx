@@ -24,7 +24,9 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import AddIcon from '@mui/icons-material/Add'
+import { Settings } from '@mui/icons-material'
 import { API_ENDPOINT } from '~/apis'
+import CoveziBackground from '~/assets/Cover_Covezi.png'
 
 function AdminVoucherConfig() {
   const [config, setConfig] = useState(null)
@@ -188,7 +190,10 @@ function AdminVoucherConfig() {
   return (
     <Box sx={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f8f9ff 0%, #fff5f0 100%)',
+      backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url(${CoveziBackground})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       pb: 4
     }}>
       <Box sx={{ p: 3 }}>

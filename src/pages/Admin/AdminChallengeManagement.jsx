@@ -34,11 +34,13 @@ import {
   Image as ImageIcon,
   Close as CloseIcon,
   Send as SendIcon,
-  Search as SearchIcon
+  Search as SearchIcon,
+  EmojiEvents
 } from '@mui/icons-material'
 import { challengeAPI, adminChallengeAPI } from '~/apis'
 import { toast } from 'react-toastify'
 import { useSelector } from 'react-redux'
+import CoveziBackground from '~/assets/Cover_Covezi.png'
 
 function AdminChallengeManagement() {
   const user = useSelector(state => state.user.user)
@@ -300,7 +302,10 @@ function AdminChallengeManagement() {
     return (
       <Box sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #f8f9ff 0%, #fff5f0 100%)',
+        backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url(${CoveziBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
@@ -313,7 +318,10 @@ function AdminChallengeManagement() {
   return (
     <Box sx={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f8f9ff 0%, #fff5f0 100%)',
+      backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url(${CoveziBackground})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       pb: 4
     }}>
       <Container maxWidth="sm" sx={{ py: 3 }}>
