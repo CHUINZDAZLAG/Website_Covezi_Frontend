@@ -20,7 +20,7 @@ import {
   Delete as DeleteIcon
 } from '@mui/icons-material'
 import { toast } from 'react-toastify'
-import { socketIoInstance } from '~/socketClient'
+import { chatSocketInstance } from '~/socketClient'
 import chatAPI from '~/apis/chatAPI'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
@@ -43,21 +43,30 @@ const ChatBot = () => {
   // Initialize chat session
   useEffect(() => {
     if (isOpen && !sessionId && currentUser) {
-      // Connect to socket when opening chat
-      if (socketIoInstance && !socketIoInstance.connected) {
-        socketIoInstance.connect()
+      // Connect to chat socket when opening chat
+      if (chatSocketInstance && !chatSocketInstance.connected) {
+        chatSocketInstance.connect()
       }
       initializeChat()
     }
   }, [isOpen, currentUser, sessionId])
 
+  // Join session room when sessionId changes
+  useEffect(() => {
+    if (sessionId && chatSocketInstance && chatSocketInstance.connected) {
+      console.log('[ChatBot] Joining session:', sessionId)
+      chatSocketInstance.emit('join_session', sessionId)
+    }
+  }, [sessionId, chatSocketInstance?.connected])
+
   // Listen for AI streaming responses
   useEffect(() => {
-    if (!socketIoInstance) {
+    if (!chatSocketInstance) {
       return
     }
 
-    socketIoInstance.on('chat:stream', (data) => {
+    chatSocketInstance.on('stream', (data) => {
+      console.log('[ChatBot] Received stream chunk:', data)
       setMessages(prev => {
         const lastMessage = prev[prev.length - 1]
         if (lastMessage && lastMessage.role === 'assistant' && !lastMessage.isComplete) {
@@ -68,7 +77,8 @@ const ChatBot = () => {
       })
     })
 
-    socketIoInstance.on('chat:stream_end', () => {
+    chatSocketInstance.on('stream_end', (data) => {
+      console.log('[ChatBot] Stream ended:', data)
       setLoading(false)
       // Mark last message as complete
       setMessages(prev => {
@@ -79,15 +89,29 @@ const ChatBot = () => {
       })
     })
 
-    socketIoInstance.on('chat:error', (error) => {
+    chatSocketInstance.on('error', (error) => {
+      console.error('[ChatBot] Socket error:', error)
       setLoading(false)
-      toast.error('Error getting response: ' + error.message)
+      // Show friendly error message
+      const errorMsg = error.message || 'Something went wrong'
+      if (errorMsg.includes('Rate limit') || errorMsg.includes('429')) {
+        toast.warning('🐱 ZiZi is taking a short nap! Please try again in a minute.')
+      } else {
+        toast.error('Error: ' + errorMsg)
+      }
+      // Remove the empty assistant message on error
+      setMessages(prev => {
+        if (prev.length > 0 && prev[prev.length - 1].role === 'assistant' && !prev[prev.length - 1].isComplete) {
+          return prev.slice(0, -1)
+        }
+        return prev
+      })
     })
 
     return () => {
-      socketIoInstance.off('chat:stream')
-      socketIoInstance.off('chat:stream_end')
-      socketIoInstance.off('chat:error')
+      chatSocketInstance.off('stream')
+      chatSocketInstance.off('stream_end')
+      chatSocketInstance.off('error')
     }
   }, [])
 
@@ -157,9 +181,12 @@ const ChatBot = () => {
 
   const handleNewChat = async () => {
     try {
-      if (sessionId && sessionId !== 'offline_mode') {
+      // Leave old session room
+      if (sessionId && sessionId !== 'offline_mode' && chatSocketInstance) {
+        chatSocketInstance.emit('leave_session', sessionId)
         await chatAPI.deleteSession(sessionId)
       }
+      setSessionId(null)
       await initializeChat()
       setMessages([])
     } catch (error) {
