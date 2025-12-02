@@ -205,16 +205,16 @@ const ChatBot = () => {
           elevation={3}
           sx={{
             position: 'absolute',
-            bottom: 80,
+            bottom: 60,
             right: 0,
-            width: 380,
-            height: 550,
+            width: 320,
+            height: 460,
             display: 'flex',
             flexDirection: 'column',
             borderRadius: 3,
             overflow: 'hidden',
             background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
-            mb: 2
+            mb: 1
           }}
         >
           {/* Header */}
@@ -469,8 +469,8 @@ const ChatBot = () => {
         <IconButton
           onClick={() => setIsOpen(!isOpen)}
           sx={{
-            width: 60,
-            height: 60,
+            width: 50,
+            height: 50,
             borderRadius: '50%',
             background: 'linear-gradient(135deg, #FF6B7A 0%, #FF8C3C 100%)',
             color: 'white',
@@ -487,8 +487,8 @@ const ChatBot = () => {
           <Avatar
             src={CoveziAIAvatar}
             sx={{
-              width: 60,
-              height: 60,
+              width: 50,
+              height: 50,
               border: '2px solid white'
             }}
           />
