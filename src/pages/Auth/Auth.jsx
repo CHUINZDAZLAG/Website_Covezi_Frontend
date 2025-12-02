@@ -4,6 +4,7 @@ import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
+import CoveziCover from '~/assets/Cover_Covezi.png'
 
 function Auth() {
   const location = useLocation()
@@ -23,11 +24,23 @@ function Auth() {
       minHeight: '100vh',
       alignItems: 'center',
       justifyContent: 'flex-start',
-      background: 'url("src/assets/auth/login-register-bg.jpg")',
+      backgroundImage: `url(${CoveziCover})`,
       backgroundRepeat: 'no-repeat',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
-      boxShadow: 'inset 0 0 0 2000px rgba(0, 0, 0, 0.2)'
+      backgroundAttachment: 'fixed',
+      position: 'relative',
+      '&::before': {
+        content: '""',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.85)',
+        zIndex: -1,
+        pointerEvents: 'none'
+      }
     }}>
       {isLogin && <LoginForm />}
       {isRegister && <RegisterForm />}

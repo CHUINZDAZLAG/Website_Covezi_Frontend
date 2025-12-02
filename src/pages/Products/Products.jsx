@@ -89,8 +89,12 @@ const Products = () => {
       queryParams.append('sort', sortBy)
 
       const response = await productAPI.getProducts(queryParams.toString())
-      setProducts(response.data?.products || response.products || [])
-      setTotalPages(Math.ceil((response.data?.total || response.total || 0) / 12))
+      console.log('[Products] API Response:', response)
+      // API file returns response.data = { success: true, data: { products: [...], totalProducts, ... } }
+      // So response here is { success: true, data: { products: [...], totalProducts, ... } }
+      const productsData = response.data || {}
+      setProducts(productsData.products || [])
+      setTotalPages(Math.ceil((productsData.totalProducts || 0) / 12))
     } catch (error) {
       console.error('Error fetching products:', error)
       setProducts([])

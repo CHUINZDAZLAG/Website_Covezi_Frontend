@@ -1,6 +1,6 @@
 import Homepage from '~/pages/Homepage/Homepage'
 import Products from '~/pages/Products/Products'
-import ProductDetailNew from '~/pages/Products/ProductDetailNew'
+import ProductDetailReal from '~/pages/Products/ProductDetailReal'
 import AdminProductManagement from '~/pages/Admin/AdminProductManagement'
 import AdminDashboard from '~/pages/Admin/AdminDashboard'
 import Orders from '~/pages/Orders/Orders'
@@ -78,7 +78,7 @@ function App() {
       {/* Public Routes */}
       <Route path='' element={<Homepage />} />
       <Route path='/products' element={<Products />} />
-      <Route path='/products/:id' element={<ProductDetailNew />} />
+      <Route path='/products/:id' element={<ProductDetailReal />} />
       <Route path='/challenges' element={<Challenges />} />
       <Route path='/challenges/create' element={<CreateChallenge />} />
       <Route path='/challenges/edit/:id' element={<EditChallenge />} />

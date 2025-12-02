@@ -67,8 +67,27 @@ const Homepage = () => {
   const { company, features, stats, promotions, testimonials, news } = homepageData || {}
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: 'transparent' }}>
-      <AppBar />
+    <Box sx={{ 
+      minHeight: '100vh', 
+      backgroundColor: 'transparent',
+      backgroundImage: `url(${CoveziCover})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed',
+      position: 'relative'
+    }}>
+      <Box sx={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.92)',
+        zIndex: 0,
+        pointerEvents: 'none'
+      }} />
+      <Box sx={{ position: 'relative', zIndex: 1 }}>
+        <AppBar />
       
       {/* Hero Section */}
       <Box
@@ -163,7 +182,7 @@ const Homepage = () => {
               Tại sao chọn Covezi?
             </Typography>
             <Grid container spacing={4}>
-              {features.map((feature, index) => (
+              {features.slice(0, 3).map((feature, index) => (
                 <Grid item xs={12} md={4} key={index}>
                   <Card
                     sx={{
@@ -182,7 +201,8 @@ const Homepage = () => {
                           mb: 3,
                           width: 64,
                           height: 64,
-                          mx: 'auto'
+                          mx: 'auto',
+                          color: 'white'
                         }}
                       >
                         {feature.icon === 'eco' && <Nature fontSize="large" />}
@@ -208,8 +228,12 @@ const Homepage = () => {
       <Box
         sx={{
           py: 8,
-          bgcolor: 'white',
-          position: 'relative'
+          bgcolor: 'rgba(255, 255, 255, 0.92)',
+          position: 'relative',
+          backgroundImage: `url(${CoveziCover})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
         }}
       >
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
@@ -259,7 +283,19 @@ const Homepage = () => {
                   fontSize: '16px'
                 }}
               >
-                Chúng tôi khởi đầu từ một niềm tin giản dị: mọi thứ đều mang trong mình một giá trị riêng, chỉ cần được nâng niu và nhìn nhận cách. Võ qua sau khi để bỏ dạo, tương chúng và nghĩa, lại có thể trở thành nguồn cảm hứng để cải tạo nền tảng sống xanh, bền vững và đầy cảm hứng.
+                Chúng tôi khởi đầu từ một niềm tin giản dị: mọi thứ đều mang trong mình một giá trị riêng, chỉ cần được nâng niu và nhìn nhận đúng cách. Vỏ quả sau khi bị bỏ đi, tưởng chừng vô nghĩa, lại có thể trở thành nguồn cảm hứng và chất liệu để kiến tạo nên những sản phẩm bền vững.
+              </Typography>
+
+              <Typography
+                variant="body1"
+                sx={{
+                  color: '#32778E',
+                  lineHeight: 1.8,
+                  mb: 2,
+                  fontSize: '16px'
+                }}
+              >
+                Cũng giống như con người, mỗi cá thể đều có một vẻ đẹp riêng biệt – đôi khi ẩn giấu dưới lớp vỏ ngoài, nhưng luôn có thể được đánh thức và phát triển.
               </Typography>
 
               <Typography
@@ -271,44 +307,8 @@ const Homepage = () => {
                   fontSize: '16px'
                 }}
               >
-                Cảm giáng nhân con người, mọi cái thế đều có một vẻ đẹp biết - đôi khi không rõ nhìn sâu sắc nằng những luân lộc có thể rực rỡ sinh học tuần trì phát triển. Là thương hiệu khởi nghiệp mang màu sắc của thiền niệm số, chúng tôi không chỉ tạo ra sản phẩm, mà còn gửi gắm hí vọng: biến dêu lượng như bờ di thành gia tăng sức mạnh tận tầu. Đó chính là cách chúng tôi đổng hành cùng bạn trên hành trình hướng tới một tối lối sáng xanh, bền vững và đầy cảm hứng.
+                Là thương hiệu khởi nghiệp mang màu của thiên nhiên số, chúng tôi không chỉ tạo ra sản phẩm, mà còn gửi gắm hi vọng: biến điều tưởng như bỏ đi thành giá trị mới, biến nét đẹp tiềm ẩn thành sức mạnh lan tỏa. Đó chính là cách chúng tôi đồng hành cùng bạn trên hành trình hướng tới một lối sống xanh, bền vững và đầy cảm hứng.
               </Typography>
-
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                <Button
-                  variant="contained"
-                  size="large"
-                  sx={{
-                    bgcolor: '#32778E',
-                    color: 'white',
-                    fontWeight: 'bold',
-                    px: 3,
-                    '&:hover': {
-                      bgcolor: '#1f4d63'
-                    }
-                  }}
-                  onClick={() => navigate('/products')}
-                >
-                  Khám phá sản phẩm
-                </Button>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  sx={{
-                    borderColor: '#32778E',
-                    color: '#32778E',
-                    fontWeight: 'bold',
-                    px: 3,
-                    '&:hover': {
-                      bgcolor: 'rgba(50, 119, 142, 0.1)',
-                      borderColor: '#32778E'
-                    }
-                  }}
-                  onClick={() => navigate('/challenges')}
-                >
-                  Tham gia thử thách
-                </Button>
-              </Box>
             </Grid>
           </Grid>
         </Container>
@@ -437,6 +437,7 @@ const Homepage = () => {
             © 2025 {company?.name || 'Covezi'}. All rights reserved.
           </Typography>
         </Container>
+      </Box>
       </Box>
     </Box>
   )
