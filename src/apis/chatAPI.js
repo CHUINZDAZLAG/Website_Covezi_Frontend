@@ -1,4 +1,4 @@
-import { authorizedAxiosInstance } from '~/utils/authorizeAxios'
+import authorizedAxiosInstance from '~/utils/authorizeAxios'
 
 const API_ENDPOINT = '/api/v1/chat'
 
