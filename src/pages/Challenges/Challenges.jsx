@@ -378,7 +378,6 @@ function Challenges() {
         <Stack direction="row" spacing={1}>
           <Button
             size="small"
-            startIcon={favorites.has(challenge._id) ? <Favorite sx={{ fontSize: 18 }} /> : <FavoriteBorder sx={{ fontSize: 18 }} />}
             sx={{ 
               color: favorites.has(challenge._id) ? '#FF6B7A' : '#666', 
               fontWeight: 600,
