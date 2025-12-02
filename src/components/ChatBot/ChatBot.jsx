@@ -85,18 +85,25 @@ const ChatBot = () => {
 
   const initializeChat = async () => {
     try {
-      const result = await chatAPI.createSession('Covezi Assistant')
+      const result = await chatAPI.createSession('ZiZi Chat')
       setSessionId(result.data._id)
       setMessages([])
     } catch (error) {
       console.error('Failed to initialize chat:', error)
-      toast.error('Failed to initialize chat')
+      // Silently fail - chat will show offline message
+      setSessionId('offline_mode')
     }
   }
 
   const handleSendMessage = async (e) => {
     e.preventDefault()
     if (!inputValue.trim() || !sessionId) return
+
+    // Check if in offline mode
+    if (sessionId === 'offline_mode') {
+      toast.error('ZiZi is offline. Please try again later!')
+      return
+    }
 
     const userMessage = {
       role: 'user',
@@ -121,13 +128,13 @@ const ChatBot = () => {
       await chatAPI.sendMessage(sessionId, inputValue)
     } catch (error) {
       console.error('Error sending message:', error)
-      toast.error('Failed to send message')
+      toast.error('Failed to send message. ZiZi is currently offline.')
       setLoading(false)
     }
   }
 
   const handleClearChat = async () => {
-    if (!sessionId) return
+    if (!sessionId || sessionId === 'offline_mode') return
     try {
       await chatAPI.clearChat(sessionId)
       setMessages([])
@@ -140,12 +147,14 @@ const ChatBot = () => {
 
   const handleNewChat = async () => {
     try {
-      await chatAPI.deleteSession(sessionId)
+      if (sessionId && sessionId !== 'offline_mode') {
+        await chatAPI.deleteSession(sessionId)
+      }
       await initializeChat()
       setMessages([])
     } catch (error) {
       console.error('Error creating new chat:', error)
-      toast.error('Failed to create new chat')
+      toast.error('ZiZi is currently offline')
     }
   }
 
@@ -193,10 +202,10 @@ const ChatBot = () => {
               />
               <Box>
                 <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                  Covezi AI Assistant
+                  ZiZi Cute Meow 🐱
                 </Typography>
                 <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                  Ask about green activities
+                  Ask me anything!
                 </Typography>
               </Box>
             </Box>
@@ -273,10 +282,10 @@ const ChatBot = () => {
               >
                 <ChatBotIcon sx={{ fontSize: 40, color: '#FFB366' }} />
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  Welcome! 👋
+                  Meow! Hi there! 🐱
                 </Typography>
                 <Typography variant="caption">
-                  Ask me about green activities, recycling, workshops, or product discounts
+                  I am ZiZi! Ask me about green activities, recycling, workshops, or discounts
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', mt: 1 }}>
                   <Chip
@@ -419,7 +428,7 @@ const ChatBot = () => {
       </Fade>
 
       {/* Chat Button */}
-      <Tooltip title={isOpen ? 'Close chat' : 'Open Covezi AI Assistant'}>
+      <Tooltip title={isOpen ? 'Close chat' : 'Chat with ZiZi!'}>
         <IconButton
           onClick={() => setIsOpen(!isOpen)}
           sx={{
