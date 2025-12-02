@@ -24,6 +24,7 @@ import Board from '~/pages/Boards/_id'
 import { useEffect } from 'react'
 import { gamificationAPI } from '~/apis'
 import { shouldClaimDailyLogin, recordDailyLoginClaim } from '~/utils/tokenUtils'
+import ChatBot from '~/components/ChatBot/ChatBot'
 
 /**
  * Protected route component using React Router's Outlet
@@ -74,48 +75,53 @@ function App() {
   }, [currentUser])
 
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path='' element={<Homepage />} />
-      <Route path='/products' element={<Products />} />
-      <Route path='/products/:id' element={<ProductDetailReal />} />
-      <Route path='/challenges' element={<Challenges />} />
-      <Route path='/challenges/create' element={<CreateChallenge />} />
-      <Route path='/challenges/edit/:id' element={<EditChallenge />} />
-      <Route path='/challenges/:id' element={<ChallengeDetail />} />
+    <>
+      <Routes>
+        {/* Public Routes */}
+        <Route path='' element={<Homepage />} />
+        <Route path='/products' element={<Products />} />
+        <Route path='/products/:id' element={<ProductDetailReal />} />
+        <Route path='/challenges' element={<Challenges />} />
+        <Route path='/challenges/create' element={<CreateChallenge />} />
+        <Route path='/challenges/edit/:id' element={<EditChallenge />} />
+        <Route path='/challenges/:id' element={<ChallengeDetail />} />
 
-      {/* Authentication routes */}
-      <Route path='/login' element={<Auth />} />
-      <Route path='/register' element={<Auth />} />
-      <Route path='/account/verification' element={<AccountVerification />} />
+        {/* Authentication routes */}
+        <Route path='/login' element={<Auth />} />
+        <Route path='/register' element={<Auth />} />
+        <Route path='/account/verification' element={<AccountVerification />} />
 
-      {/* Protected Routes - require authentication */}
-      <Route element={<ProtectedRoute user={currentUser}/>}>
-        {/* User dashboard */}
-        <Route path='/orders' element={<Orders />} />
-        <Route path='/orders/:id' element={<OrderDetail />} />
-        <Route path='/garden' element={<Garden />} />
-        <Route path='/vouchers' element={<MyVouchers />} />
-        <Route path='/leaderboard' element={<Leaderboard />} />
-        
-        {/* User settings */}
-        <Route path='/settings/account' element={<Settings />} />
-        <Route path='/settings/security' element={<Settings />} />
-        
-        {/* Legacy Trello routes - giữ để tránh conflict */}
-        <Route path='/boards/:boardId' element={<Board />} />
-        <Route path='/boards/' element={<Boards />} />
-      </Route>
+        {/* Protected Routes - require authentication */}
+        <Route element={<ProtectedRoute user={currentUser}/>}>
+          {/* User dashboard */}
+          <Route path='/orders' element={<Orders />} />
+          <Route path='/orders/:id' element={<OrderDetail />} />
+          <Route path='/garden' element={<Garden />} />
+          <Route path='/vouchers' element={<MyVouchers />} />
+          <Route path='/leaderboard' element={<Leaderboard />} />
+          
+          {/* User settings */}
+          <Route path='/settings/account' element={<Settings />} />
+          <Route path='/settings/security' element={<Settings />} />
+          
+          {/* Legacy Trello routes - giữ để tránh conflict */}
+          <Route path='/boards/:boardId' element={<Board />} />
+          <Route path='/boards/' element={<Boards />} />
+        </Route>
 
-      {/* Admin Protected Routes - require authentication + admin role */}
-      <Route element={<AdminProtectedRoute user={currentUser}/>}>
-        <Route path='/admin' element={<AdminDashboard />} />
-        <Route path='/admin/products' element={<AdminProductManagement />} />
-      </Route>
+        {/* Admin Protected Routes - require authentication + admin role */}
+        <Route element={<AdminProtectedRoute user={currentUser}/>}>
+          <Route path='/admin' element={<AdminDashboard />} />
+          <Route path='/admin/products' element={<AdminProductManagement />} />
+        </Route>
 
-      {/* 404 page */}
-      <Route path='*' element={<NotFound />} />
-    </Routes>
+        {/* 404 page */}
+        <Route path='*' element={<NotFound />} />
+      </Routes>
+
+      {/* ChatBot available on all pages for authenticated users */}
+      <ChatBot />
+    </>
   )
 }
 

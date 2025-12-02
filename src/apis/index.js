@@ -1,9 +1,10 @@
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT, API_ENDPOINT } from '~/utils/constants'
 import { toast } from 'react-toastify'
+import chatAPI from './chatAPI'
 
 // Export API_ENDPOINT for admin pages
-export { API_ENDPOINT }
+export { API_ENDPOINT, chatAPI }
 
 // ===== LEGACY TRELLO APIs =====
 // Board API
